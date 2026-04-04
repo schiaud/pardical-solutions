@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function Hero() {
   return (
     <section className="pt-32 pb-20 px-6 bg-gradient-to-b from-white to-surface">
@@ -33,39 +35,40 @@ export function Hero() {
         </div>
 
         <div className="mt-16 relative">
-          <div className="bg-white rounded-2xl shadow-2xl shadow-slate-200 border border-slate-200 overflow-hidden">
-            <div className="bg-slate-800 h-8 flex items-center px-4 gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-400" />
-              <div className="w-3 h-3 rounded-full bg-yellow-400" />
-              <div className="w-3 h-3 rounded-full bg-green-400" />
-              <div className="ml-4 flex-1 bg-slate-700 rounded h-4 max-w-xs" />
-            </div>
-            <div className="p-6 md:p-10">
-              <div className="grid grid-cols-4 gap-4 mb-6">
-                {[
-                  { label: "Active Orders", value: "47", color: "bg-blue-50 text-blue-700" },
-                  { label: "Ready to Ship", value: "12", color: "bg-green-50 text-green-700" },
-                  { label: "Pending Returns", value: "5", color: "bg-amber-50 text-amber-700" },
-                  { label: "Revenue Today", value: "$3,240", color: "bg-purple-50 text-purple-700" },
-                ].map((card) => (
-                  <div key={card.label} className={`rounded-xl p-4 ${card.color}`}>
-                    <div className="text-2xl font-bold">{card.value}</div>
-                    <div className="text-sm mt-1 opacity-80">{card.label}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="flex items-center gap-4 p-3 bg-slate-50 rounded-lg">
-                    <div className="w-16 h-4 bg-slate-200 rounded" />
-                    <div className="flex-1 h-4 bg-slate-200 rounded max-w-xs" />
-                    <div className="w-20 h-4 bg-slate-200 rounded" />
-                    <div className="w-24 h-7 bg-green-100 rounded-full" />
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="rounded-2xl shadow-2xl shadow-slate-200 border border-slate-200 overflow-hidden">
+            <Image
+              src="/screenshots/orders.png"
+              alt="Pardical Solutions — Order management dashboard showing real-time order tracking, supplier details, and fulfillment status"
+              width={1440}
+              height={900}
+              className="w-full h-auto"
+              priority
+            />
           </div>
+        </div>
+
+        <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { src: "/screenshots/performance.png", label: "Employee Performance" },
+            { src: "/screenshots/warehouse-inventory.png", label: "Warehouse Inventory" },
+            { src: "/screenshots/messages.png", label: "eBay Messages" },
+            { src: "/screenshots/shipments.png", label: "Shipment Tracking" },
+          ].map((item) => (
+            <div key={item.label} className="group cursor-pointer">
+              <div className="rounded-xl border border-slate-200 overflow-hidden shadow-md group-hover:shadow-xl group-hover:border-primary/30 transition-all duration-300">
+                <Image
+                  src={item.src}
+                  alt={item.label}
+                  width={720}
+                  height={450}
+                  className="w-full h-auto"
+                />
+              </div>
+              <p className="mt-2 text-sm font-medium text-slate-500 group-hover:text-primary transition-colors">
+                {item.label}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
