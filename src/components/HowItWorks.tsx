@@ -1,53 +1,64 @@
-const steps = [
+import { Icon, type IconName } from "./marketing/Icon";
+import { SectionHeading } from "./marketing/SectionHeading";
+
+const steps: { icon: IconName; title: string; body: string }[] = [
   {
-    number: "01",
-    title: "We Set It Up For You",
-    description:
-      "We configure the platform for your business — your suppliers, your eBay account, your QuickBooks. Takes about a day. You don't touch any code.",
+    icon: "calendar",
+    title: "15-minute demo",
+    body: "We price five of your own parts live, so you see real numbers for your yard.",
   },
   {
-    number: "02",
-    title: "Your Team Starts Working",
-    description:
-      "Your employees log in and start managing orders immediately. The interface is simple — if they can use a spreadsheet, they can use this. We train your team.",
+    icon: "upload",
+    title: "Send your inventory export",
+    body: "One file from Powerlink, Checkmate or Pinnacle. We'll show you where to find it.",
   },
   {
-    number: "03",
-    title: "Watch Efficiency Climb",
-    description:
-      "Automated pricing, bank reconciliation, and order tracking mean your VAs handle 2-3x the volume. You see the results in real-time performance dashboards.",
+    icon: "globe",
+    title: "Go live in about a week",
+    body: "Your new site goes up on your domain, and your listings go out to eBay, Google and Facebook.",
+  },
+  {
+    icon: "inbox",
+    title: "Approve prices, watch the leads",
+    body: "Approve suggested prices in bulk. Every part request, chat and sell-your-car lead comes to you.",
   },
 ];
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-20 px-6 bg-white">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-primary-dark">
-            Up and Running in Days, Not Months
-          </h2>
-          <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
-            No complex IT projects. No consultants. We handle the setup and your team
-            starts using it immediately.
-          </p>
-        </div>
+    <section
+      id="how-it-works"
+      className="scroll-mt-16 bg-white px-4 py-20 sm:px-6 sm:py-28"
+    >
+      <div className="mx-auto max-w-6xl">
+        <SectionHeading
+          eyebrow="How it works"
+          title="Live in about a week."
+          subtitle="Four steps. Most of the work is ours."
+        />
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="relative mt-14">
+          {/* Connector line on wide screens */}
+          <div
+            aria-hidden="true"
+            className="absolute top-7 right-[12.5%] left-[12.5%] hidden h-px bg-slate-200 lg:block"
+          />
+          <ol className="relative grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {steps.map((step, i) => (
-            <div key={step.number} className="relative">
-              {i < steps.length - 1 && (
-                <div className="hidden md:block absolute top-12 left-full w-full h-0.5 bg-slate-200 -translate-x-1/2 z-0" />
-              )}
-              <div className="relative z-10">
-                <div className="w-14 h-14 rounded-2xl bg-primary text-white flex items-center justify-center text-xl font-bold mb-5">
-                  {step.number}
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">{step.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{step.description}</p>
+            <li key={step.title} className="relative text-center">
+              <div className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/20">
+                <Icon name={step.icon} className="h-6 w-6" />
+                <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-bold text-primary-dark ring-4 ring-white">
+                  {i + 1}
+                </span>
               </div>
-            </div>
+              <h3 className="mt-5 text-lg font-bold text-slate-900">{step.title}</h3>
+              <p className="mx-auto mt-2 max-w-xs leading-relaxed text-slate-600">
+                {step.body}
+              </p>
+            </li>
           ))}
+          </ol>
         </div>
       </div>
     </section>

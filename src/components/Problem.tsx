@@ -1,61 +1,80 @@
+import { Icon, type IconName } from "./marketing/Icon";
+import { SectionHeading } from "./marketing/SectionHeading";
+
+const painPoints: { icon: IconName; title: string; body: string }[] = [
+  {
+    icon: "phone",
+    title: "Missed calls",
+    body: "The phone rings while everyone is out in the yard. Industry research says yards miss 15–40% of their calls, sometimes more. Each one is a buyer who calls the next yard.",
+  },
+  {
+    icon: "archive",
+    title: "Parts sitting unlisted",
+    body: "The parts are pulled and on the shelf, but they're not online. If a buyer can't find it, it doesn't sell.",
+  },
+  {
+    icon: "tag",
+    title: "Prices all over the place",
+    body: "The same part gets a different price depending on who picks up the phone. Too high and it sits. Too low and you leave money on the table.",
+  },
+  {
+    icon: "user",
+    title: "The owner does everything",
+    body: "Pricing, listing, answering questions, shipping. It all runs through you, so there's no time left to grow.",
+  },
+  {
+    icon: "window",
+    title: "A website that can't take an order",
+    body: "Your site shows your hours and a phone number. A buyer searching at 10 p.m. moves on to someone who lets them find the part.",
+  },
+];
+
 export function Problem() {
-  const painPoints = [
-    {
-      before: "Manually checking Chase statements every day",
-      after: "Bank charges auto-matched to orders in real time",
-    },
-    {
-      before: "Spreadsheets to track orders, returns, and shipments",
-      after: "One dashboard with live status on every ticket",
-    },
-    {
-      before: "Calling suppliers and searching Car-Part.com by hand",
-      after: "Instant pricing from Car-Part.com built into every order",
-    },
-    {
-      before: "No visibility into which employees are productive",
-      after: "Performance metrics per employee, per day, per task",
-    },
-    {
-      before: "Checking if supplier refund credits ever came back",
-      after: "Automatic 30-day refund tracking with overdue alerts",
-    },
-    {
-      before: "Listing parts on eBay one at a time",
-      after: "Integrated eBay listing and message management",
-    },
-  ];
-
   return (
-    <section className="py-20 px-6 bg-white">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-14">
-          <h2 className="text-3xl md:text-4xl font-bold text-primary-dark">
-            Your VAs Are Spending Hours on Work That Should Be Automatic
-          </h2>
-          <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
-            Every hour spent on manual data entry, statement checking, and spreadsheet juggling
-            is an hour not spent finding and selling parts.
-          </p>
-        </div>
+    <section className="bg-white px-4 py-20 sm:px-6 sm:py-28">
+      <div className="mx-auto max-w-6xl">
+        <SectionHeading
+          eyebrow="Sound familiar?"
+          title="The parts are on your shelves. The buyers are online."
+          subtitle="Good parts on the shelf don't help if buyers can't find them or can't reach you. Here's where sales slip away."
+        />
 
-        <div className="space-y-4">
-          {painPoints.map((point, i) => (
-            <div key={i} className="grid md:grid-cols-2 gap-0 md:gap-4 items-stretch">
-              <div className="bg-red-50 border border-red-100 rounded-xl p-5 flex items-center gap-4">
-                <div className="shrink-0 w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-500 font-bold text-sm">
-                  ✕
-                </div>
-                <span className="text-slate-700">{point.before}</span>
+        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {painPoints.map((point) => (
+            <div
+              key={point.title}
+              className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7"
+            >
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-600">
+                <Icon name={point.icon} className="h-6 w-6" />
               </div>
-              <div className="bg-green-50 border border-green-100 rounded-xl p-5 flex items-center gap-4">
-                <div className="shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-sm">
-                  ✓
-                </div>
-                <span className="text-slate-700">{point.after}</span>
-              </div>
+              <h3 className="mt-5 text-lg font-bold text-slate-900">
+                {point.title}
+              </h3>
+              <p className="mt-2 leading-relaxed text-slate-600">{point.body}</p>
             </div>
           ))}
+
+          <a
+            href="#what-you-get"
+            className="group flex flex-col justify-between rounded-2xl bg-primary p-6 text-white transition-colors hover:bg-primary-light sm:p-7"
+          >
+            <div>
+              <h3 className="text-lg font-bold">There&apos;s a simpler way.</h3>
+              <p className="mt-2 leading-relaxed text-white/75">
+                We put your parts online everywhere, price them from the market
+                and answer buyers for you. You stay in charge.
+              </p>
+            </div>
+            <span className="mt-6 inline-flex items-center gap-2 font-semibold text-accent-light">
+              See what you get
+              <Icon
+                name="arrowRight"
+                className="h-5 w-5 transition-transform group-hover:translate-x-1"
+                strokeWidth={2}
+              />
+            </span>
+          </a>
         </div>
       </div>
     </section>

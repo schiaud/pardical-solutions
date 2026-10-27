@@ -1,0 +1,319 @@
+{
+ "_comment": "Median / quartile label cost (USD) per part category and size class, from real used-part shipments. Used for shipping estimates.",
+ "size_classes": {
+  "medium": {
+   "n": 1750,
+   "median": 17.8,
+   "p25": 12.9,
+   "p75": 25
+  },
+  "small": {
+   "n": 448,
+   "median": 12.4,
+   "p25": 9.14,
+   "p75": 22.49
+  },
+  "large": {
+   "n": 584,
+   "median": 28.81,
+   "p25": 20,
+   "p75": 38.31
+  },
+  "oversize": {
+   "n": 32,
+   "median": 21.77,
+   "p25": 15,
+   "p75": 33.18
+  },
+  "freight": {
+   "n": 3,
+   "median": 17.8,
+   "p25": 12.08,
+   "p75": 34.32
+  }
+ },
+ "categories": {
+  "ABS Pump/Module": {
+   "n": 412,
+   "median": 15.48,
+   "p25": 11.55,
+   "p75": 20
+  },
+  "AC/Heater Control": {
+   "n": 307,
+   "median": 11.87,
+   "p25": 8.97,
+   "p75": 22.31
+  },
+  "Spindle/Knuckle": {
+   "n": 152,
+   "median": 25.53,
+   "p25": 20.12,
+   "p75": 34.86
+  },
+  "Door Mirror": {
+   "n": 132,
+   "median": 17.47,
+   "p25": 12.62,
+   "p75": 25
+  },
+  "Radio/Infotainment": {
+   "n": 36,
+   "median": 16.21,
+   "p25": 10,
+   "p75": 20
+  },
+  "Intake Manifold": {
+   "n": 256,
+   "median": 30.69,
+   "p25": 22.54,
+   "p75": 39.53
+  },
+  "Sun Visor": {
+   "n": 19,
+   "median": 13.43,
+   "p25": 9.14,
+   "p75": 20
+  },
+  "Air Cleaner Box/Intake Housing": {
+   "n": 72,
+   "median": 30.38,
+   "p25": 23.18,
+   "p75": 37.96
+  },
+  "Tail Light": {
+   "n": 282,
+   "median": 19.46,
+   "p25": 13.46,
+   "p75": 27.25
+  },
+  "Power Brake Booster/Master Cylinder": {
+   "n": 125,
+   "median": 23.15,
+   "p25": 17.17,
+   "p75": 30.74
+  },
+  "Ignition Switch": {
+   "n": 65,
+   "median": 14.99,
+   "p25": 9.44,
+   "p75": 20.68
+  },
+  "Fuel Pump": {
+   "n": 81,
+   "median": 15.25,
+   "p25": 10.92,
+   "p75": 23.68
+  },
+  "Power Steering Pump": {
+   "n": 73,
+   "median": 15,
+   "p25": 9.98,
+   "p75": 21.24
+  },
+  "Timing Cover": {
+   "n": 93,
+   "median": 25,
+   "p25": 18.76,
+   "p75": 30.61
+  },
+  "Starter": {
+   "n": 2,
+   "median": 16.29,
+   "p25": 16.29,
+   "p75": 24.12
+  },
+  "Fog/Corner/Marker Light": {
+   "n": 13,
+   "median": 9.62,
+   "p25": 7.93,
+   "p75": 13.99
+  },
+  "Speedometer/Instrument Cluster": {
+   "n": 112,
+   "median": 16.07,
+   "p25": 12.61,
+   "p75": 25
+  },
+  "Turbocharger/Supercharger": {
+   "n": 14,
+   "median": 30.3,
+   "p25": 25,
+   "p75": 39.35
+  },
+  "Mass Air Flow Sensor": {
+   "n": 7,
+   "median": 20,
+   "p25": 13.34,
+   "p75": 30
+  },
+  "Exhaust Manifold": {
+   "n": 30,
+   "median": 18.42,
+   "p25": 15.88,
+   "p75": 26
+  },
+  "Gear Shifter/Shift Assembly": {
+   "n": 60,
+   "median": 20.58,
+   "p25": 16.29,
+   "p75": 30
+  },
+  "Vapor Canister": {
+   "n": 49,
+   "median": 20.87,
+   "p25": 16.96,
+   "p75": 28.77
+  },
+  "Windshield/Glass": {
+   "n": 32,
+   "median": 21.77,
+   "p25": 15,
+   "p75": 33.18
+  },
+  "Fuel Injector/Rail": {
+   "n": 20,
+   "median": 20,
+   "p25": 12.95,
+   "p75": 30
+  },
+  "Door Lock Latch/Actuator": {
+   "n": 9,
+   "median": 11.16,
+   "p25": 10.07,
+   "p75": 14.24
+  },
+  "AC Compressor": {
+   "n": 58,
+   "median": 18.92,
+   "p25": 14.88,
+   "p75": 25
+  },
+  "Cylinder Head": {
+   "n": 15,
+   "median": 34.62,
+   "p25": 26.8,
+   "p75": 57.49
+  },
+  "Throttle Body": {
+   "n": 71,
+   "median": 12.73,
+   "p25": 10,
+   "p75": 16.93
+  },
+  "Headlight Assembly": {
+   "n": 30,
+   "median": 25,
+   "p25": 20.18,
+   "p75": 31.83
+  },
+  "Caliper": {
+   "n": 16,
+   "median": 17.48,
+   "p25": 10.42,
+   "p75": 25
+  },
+  "Console/Front": {
+   "n": 34,
+   "median": 19.67,
+   "p25": 12.47,
+   "p75": 32.76
+  },
+  "Suspension (Arms/Sway/Kit)": {
+   "n": 11,
+   "median": 52.93,
+   "p25": 47.42,
+   "p75": 60.07
+  },
+  "Alternator": {
+   "n": 40,
+   "median": 21.86,
+   "p25": 15,
+   "p75": 30
+  },
+  "Distributor/Ignition Parts": {
+   "n": 2,
+   "median": 8.79,
+   "p25": 8.79,
+   "p75": 30
+  },
+  "Wiper Motor": {
+   "n": 10,
+   "median": 14.98,
+   "p25": 14.13,
+   "p75": 29.82
+  },
+  "Engine": {
+   "n": 2,
+   "median": 12.08,
+   "p25": 12.08,
+   "p75": 34.32
+  },
+  "Power Window Switch/Regulator": {
+   "n": 35,
+   "median": 10.7,
+   "p25": 7.93,
+   "p75": 22.35
+  },
+  "Blower Motor": {
+   "n": 3,
+   "median": 25,
+   "p25": 20,
+   "p75": 25
+  },
+  "Coolant Reservoir/Overflow Tank": {
+   "n": 3,
+   "median": 27.84,
+   "p25": 20.89,
+   "p75": 44.71
+  },
+  "Column Switch/Steering Column": {
+   "n": 12,
+   "median": 20,
+   "p25": 9.19,
+   "p75": 23.07
+  },
+  "Cooling Fan": {
+   "n": 10,
+   "median": 25.99,
+   "p25": 19.45,
+   "p75": 32.76
+  },
+  "Sensors/Switches/Modules": {
+   "n": 6,
+   "median": 13.89,
+   "p25": 7.96,
+   "p75": 22.49
+  },
+  "Intercooler": {
+   "n": 1,
+   "median": 16.96,
+   "p25": 16.96,
+   "p75": 16.96
+  },
+  "Valve Cover": {
+   "n": 1,
+   "median": 20.67,
+   "p25": 20.67,
+   "p75": 20.67
+  },
+  "Steering Rack/Gear": {
+   "n": 1,
+   "median": 23,
+   "p25": 23,
+   "p75": 23
+  },
+  "Transmission": {
+   "n": 1,
+   "median": 17.8,
+   "p25": 17.8,
+   "p75": 17.8
+  },
+  "Washer Reservoir/Fluid": {
+   "n": 2,
+   "median": 34.14,
+   "p25": 34.14,
+   "p75": 34.36
+  }
+ }
+}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { siteUrl } from "@/lib/site-url";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,16 +14,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pardical Solutions — Auto Parts Broker Management Software",
+  metadataBase: new URL(siteUrl()),
+  title: "Pardical — Sell more used parts, faster",
   description:
-    "The all-in-one platform for auto parts brokers. Order management, real-time pricing, warehouse tracking, bank reconciliation, eBay integration, and employee performance — automated.",
-  keywords: [
-    "auto parts broker software",
-    "auto parts management",
-    "car parts broker",
-    "auto recycler software",
-    "parts broker tools",
-  ],
+    "A new website and parts store for your auto recycling yard, plus eBay, Facebook and Google listings, market-based prices and AI chat — set up and run for you.",
+  keywords: ["auto recycler website", "salvage yard website", "AI for auto recyclers", "sell used auto parts online", "auto wrecker software"],
 };
 
 export default function RootLayout({

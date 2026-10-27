@@ -3,8 +3,8 @@ import { Footer } from "@/components/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "End-User License Agreement — Pardical Solutions",
-  description: "End-User License Agreement for Pardical Solutions auto parts broker management software.",
+  title: "End-User License Agreement — Pardical",
+  description: "Terms for using the Pardical platform: websites, listing, pricing and order-automation services for auto recyclers and parts brokers.",
 };
 
 export default function EULA() {
@@ -14,14 +14,14 @@ export default function EULA() {
       <main className="pt-28 pb-20 px-6 bg-white">
         <article className="max-w-3xl mx-auto prose prose-slate prose-headings:text-primary-dark">
           <h1>End-User License Agreement</h1>
-          <p className="text-sm text-slate-500">Last updated: April 2, 2026</p>
+          <p className="text-sm text-slate-500">Last updated: October 27, 2026</p>
 
           <p>
             This End-User License Agreement (&quot;Agreement&quot;) is a legal agreement between you
-            (&quot;User,&quot; &quot;you,&quot; or &quot;your&quot;) and Pardical Solutions (&quot;Company,&quot;
-            &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) governing your use of the Pardical Solutions
-            platform, including all related software, services, and integrations (collectively, the
-            &quot;Service&quot;).
+            (&quot;User,&quot; &quot;you,&quot; or &quot;your&quot;) and Pardical LLC (&quot;Pardical,&quot;
+            &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) governing your use of the Pardical platform,
+            including hosted websites, listing and pricing tools, order automation, and all related software,
+            services, and integrations (collectively, the &quot;Service&quot;).
           </p>
           <p>
             By accessing or using the Service, you agree to be bound by this Agreement. If you do not agree,
@@ -58,7 +58,7 @@ export default function EULA() {
           <h2>4. Third-Party Integrations</h2>
           <p>
             The Service integrates with third-party platforms including, but not limited to, Intuit
-            QuickBooks Online, eBay, and Car-Part.com. Your use of these integrations is subject to the
+            QuickBooks Online, eBay, Google, Meta (Facebook), and Car-Part.com. Your use of these integrations is subject to the
             respective terms of service and privacy policies of those third parties. We are not responsible
             for the availability, accuracy, or functionality of third-party services.
           </p>
@@ -94,14 +94,14 @@ export default function EULA() {
           <h2>8. Intellectual Property</h2>
           <p>
             The Service, including its design, code, features, and documentation, is owned by Pardical
-            Solutions and is protected by intellectual property laws. This Agreement does not transfer any
+            LLC and is protected by intellectual property laws. This Agreement does not transfer any
             ownership rights to you. All trademarks, logos, and service marks displayed on the Service are
             our property or the property of their respective owners.
           </p>
 
           <h2>9. Limitation of Liability</h2>
           <p>
-            TO THE MAXIMUM EXTENT PERMITTED BY LAW, PARDICAL SOLUTIONS SHALL NOT BE LIABLE FOR ANY
+            TO THE MAXIMUM EXTENT PERMITTED BY LAW, PARDICAL LLC SHALL NOT BE LIABLE FOR ANY
             INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS,
             DATA, OR BUSINESS OPPORTUNITIES ARISING OUT OF OR RELATED TO YOUR USE OF THE SERVICE. OUR
             TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT YOU PAID FOR THE SERVICE IN THE TWELVE (12) MONTHS
@@ -144,9 +144,11 @@ export default function EULA() {
             If you have questions about this Agreement, contact us at:
           </p>
           <p>
-            <strong>Pardical Solutions</strong>
+            <strong>Pardical LLC</strong>
             <br />
-            Email: legal@pardical.com
+            Des Plaines, Illinois
+            <br />
+            Email: hello@pardical.com
           </p>
         </article>
       </main>

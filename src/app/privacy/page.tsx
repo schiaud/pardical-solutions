@@ -3,8 +3,8 @@ import { Footer } from "@/components/Footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Pardical Solutions",
-  description: "Privacy Policy for Pardical Solutions auto parts broker management software.",
+  title: "Privacy Policy — Pardical",
+  description: "How Pardical LLC collects, uses and protects information for its websites, listing, pricing and order-automation services.",
 };
 
 export default function Privacy() {
@@ -14,13 +14,13 @@ export default function Privacy() {
       <main className="pt-28 pb-20 px-6 bg-white">
         <article className="max-w-3xl mx-auto prose prose-slate prose-headings:text-primary-dark">
           <h1>Privacy Policy</h1>
-          <p className="text-sm text-slate-500">Last updated: April 2, 2026</p>
+          <p className="text-sm text-slate-500">Last updated: October 27, 2026</p>
 
           <p>
-            Pardical Solutions (&quot;Company,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;)
+            Pardical LLC (&quot;Pardical,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;)
             is committed to protecting your privacy. This Privacy Policy explains how we collect, use,
-            store, and share information when you use the Pardical Solutions platform and related services
-            (the &quot;Service&quot;).
+            store, and share information when you visit pardical.com, use the Pardical platform, or visit a
+            parts website that we build and host for an auto recycler (together, the &quot;Service&quot;).
           </p>
 
           <h2>1. Information We Collect</h2>
@@ -43,6 +43,16 @@ export default function Privacy() {
               <strong>Communications:</strong> Messages you send through the Service, support requests,
               and feedback.
             </li>
+            <li>
+              <strong>Website forms and chat:</strong> When you request a demo on pardical.com, or request a
+              part, offer a vehicle for sale, or use the parts chat on a yard website we host, we collect
+              what you enter (such as your name, phone number, email, ZIP code, VIN and vehicle details) and
+              the chat conversation. We pass it to the business you contacted so they can reply.
+            </li>
+            <li>
+              <strong>Inventory data:</strong> Parts inventory, prices and photos that a yard sends us to
+              publish on its website and listing channels.
+            </li>
           </ul>
 
           <h3>Information from Third-Party Integrations</h3>
@@ -59,8 +69,8 @@ export default function Privacy() {
               information, and messages related to your auto parts sales.
             </li>
             <li>
-              <strong>Car-Part.com:</strong> We query publicly available pricing data from Car-Part.com
-              on your behalf to provide real-time pricing information.
+              <strong>Pricing sources:</strong> We look up publicly available market prices (for example on
+              eBay and Car-Part.com) to suggest part prices.
             </li>
           </ul>
 
@@ -81,8 +91,10 @@ export default function Privacy() {
           <ul>
             <li>Provide, operate, and maintain the Service;</li>
             <li>Process and manage your orders, inventory, and business operations;</li>
-            <li>Match bank transactions to orders for reconciliation purposes;</li>
-            <li>Track and display employee performance metrics;</li>
+            <li>Publish yard inventory on websites and listing channels the customer chooses;</li>
+            <li>Answer parts questions in website chat and pass leads to the business you contacted;</li>
+            <li>Match bank and card transactions to orders for reconciliation purposes;</li>
+            <li>Show team activity and order status to our business customers;</li>
             <li>Send you service-related notifications and updates;</li>
             <li>Provide customer support;</li>
             <li>Improve and develop new features;</li>
@@ -94,8 +106,9 @@ export default function Privacy() {
           <ul>
             <li>
               <strong>Service providers:</strong> Third-party companies that help us operate the Service
-              (e.g., cloud hosting via Google Firebase, payment processing via Stripe). These providers
-              are contractually obligated to protect your data.
+              (e.g., cloud hosting providers such as Railway and Google Cloud, AI providers such as
+              Anthropic that generate chat replies, and payment processing via Stripe). These providers are
+              contractually obligated to protect your data.
             </li>
             <li>
               <strong>Third-party integrations:</strong> When you authorize connections to QuickBooks,
@@ -104,7 +117,7 @@ export default function Privacy() {
             </li>
             <li>
               <strong>Legal requirements:</strong> When required by law, legal process, or to protect the
-              rights, property, or safety of Pardical Solutions, our users, or the public.
+              rights, property, or safety of Pardical, our users, or the public.
             </li>
           </ul>
 
@@ -141,7 +154,7 @@ export default function Privacy() {
             <li>Opt out of non-essential communications.</li>
           </ul>
           <p>
-            To exercise any of these rights, contact us at privacy@pardical.com.
+            To exercise any of these rights, contact us at hello@pardical.com.
           </p>
 
           <h2>7. Third-Party Integration Data Handling</h2>
@@ -170,8 +183,8 @@ export default function Privacy() {
 
           <h2>8. Cookies &amp; Tracking</h2>
           <p>
-            We use essential cookies to maintain your session and preferences. We do not use third-party
-            advertising trackers. We may use analytics tools to understand how the Service is used and to
+            We use essential cookies to keep signed-in users signed in, and browser session storage to keep a
+            chat conversation together. We do not use third-party advertising trackers. We may use analytics tools to understand how the Service is used and to
             improve it.
           </p>
 
@@ -193,9 +206,11 @@ export default function Privacy() {
             If you have questions about this Privacy Policy or your data, contact us at:
           </p>
           <p>
-            <strong>Pardical Solutions</strong>
+            <strong>Pardical LLC</strong>
             <br />
-            Email: privacy@pardical.com
+            Des Plaines, Illinois
+            <br />
+            Email: hello@pardical.com
           </p>
         </article>
       </main>
