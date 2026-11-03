@@ -52,10 +52,10 @@ export function CTA() {
             <span>
               Prefer email?{" "}
               <a
-                href="mailto:hello@pardical.com"
+                href="mailto:david@pardical.com"
                 className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-accent"
               >
-                hello@pardical.com
+                david@pardical.com
               </a>
             </span>
           </p>

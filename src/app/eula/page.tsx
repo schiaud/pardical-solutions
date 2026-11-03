@@ -148,7 +148,7 @@ export default function EULA() {
             <br />
             Des Plaines, Illinois
             <br />
-            Email: hello@pardical.com
+            Email: david@pardical.com
           </p>
         </article>
       </main>

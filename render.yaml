@@ -1,10 +1,10 @@
 # Render Blueprint: one web service + a persistent disk for the SQLite database.
-# Render → New → Blueprint → pick this repo. Then fill ADMIN_PASSWORD (and the optional keys) when asked.
+# Render → New → Blueprint → pick this repo and branch. Fill the optional keys and KYC_* values when asked.
 services:
   - type: web
     name: pardical-web
     runtime: docker
-    plan: starter
+    plan: 0.5c-512mb
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
     autoDeploy: true
@@ -13,13 +13,12 @@ services:
       mountPath: /data
       sizeGB: 1
     domains:
-      - pardical.com
-      - www.pardical.com
+      - pardical.com # Render adds www.pardical.com and redirects it here
     envVars:
       - key: SESSION_SECRET
         generateValue: true
       - key: ADMIN_PASSWORD
-        sync: false
+        generateValue: true # read it from the service's Environment tab
       - key: SITE_URL
         value: https://pardical.com
       - key: APP_HOSTS

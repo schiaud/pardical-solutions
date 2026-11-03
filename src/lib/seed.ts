@@ -83,7 +83,41 @@ const PARTS: DemoPart[] = [
     note: "Sold to verified repair shops only.", grade: "B", miles: 188000, price: null,
     photo: "/demo-parts/catalytic-converter.jpg", credit: `Sample photo: Santeri Viinamäki, CC BY-SA 4.0|${commons("Catalytic_converter_20230510.jpg")}`,
   },
-  // BODY_PARTS
+  {
+    stock: "G9013", year: 1990, make: "Geo", model: "Storm", part: "Hood",
+    note: "GSi. Yellow. Off the same donor car as the ECM and master cylinder.", grade: "B", miles: 132500, price: 95,
+    photo: "/demo-parts/hood.jpg", credit: `Photo: Ildar Sagdejev (Specious), CC BY-SA 3.0|${commons("2008-04-19_Yellow_hood.jpg")}`,
+  },
+  {
+    stock: "G9014", year: 1990, make: "Geo", model: "Storm", part: "Instrument Cluster",
+    note: "GSi. Tachometer, MPH speedometer, fuel and temperature gauges.", grade: "A", miles: 132500, price: 65,
+    photo: "/demo-parts/instrument-cluster.jpg", credit: `Photo: Ildar Sagdejev (Specious), CC BY-SA 4.0|${commons("2008-04-06_Geo_Storm_GSi_instrument_gauge_cluster_(front).jpg")}`,
+  },
+  {
+    stock: "G9015", year: 1990, make: "Geo", model: "Storm", part: "Seat",
+    note: "Driver front, with headrest and slide rails.", grade: "B", miles: 132500, price: 85,
+    photo: "/demo-parts/seat.jpg", credit: `Photo: Ildar Sagdejev (Specious), CC BY-SA 4.0|${commons("2008-08-16_Geo_Storm_front_left_seat.jpg")}`,
+  },
+  {
+    stock: "G9016", year: 1990, make: "Geo", model: "Storm", part: "Steering Wheel",
+    note: "GSi. Airbag module not included.", grade: "B", miles: 132500, price: 40,
+    photo: "/demo-parts/steering-wheel.jpg", credit: `Photo: Ildar Sagdejev (Specious), CC BY-SA 4.0|${commons("2008-04-04_Geo_Storm_steering_wheel.jpg")}`,
+  },
+  {
+    stock: "G9017", year: 1990, make: "Geo", model: "Storm", part: "Liftgate",
+    note: "GSi rear hatch. Yellow, with glass and gas struts. Local pickup or freight only.", grade: "B", miles: 132500, price: 165,
+    photo: "/demo-parts/tailgate.jpg", credit: `Photo: Ildar Sagdejev (Specious), CC BY-SA 4.0|${commons("2008-05-30_1990_Geo_Storm_GSi_rear_hatch_underside.jpg")}`,
+  },
+  {
+    stock: "J2014", year: 2014, make: "Jeep", model: "Grand Cherokee", part: "Wheel",
+    note: "Polished multi-spoke alloy. Priced per wheel; four available.", grade: "A", miles: 58200, price: 165,
+    photo: "/demo-parts/alloy-wheel.jpg", credit: `Photo: Jwh, CC BY-SA 3.0|${commons("Jeep_Grand_Cherokee_wheels-101.jpg")}`,
+  },
+  {
+    stock: "H0501", year: 2001, make: "Honda", model: "Accord", part: "Radio",
+    note: "Factory CD and cassette head unit. Unlock code not included.", grade: "B", miles: 171900, price: 55,
+    photo: "/demo-parts/radio.jpg", credit: `Sample photo: KSC60, CC BY-SA 4.0|${commons("Car_radio_with_both_CD_and_compact_casette.jpg")}`,
+  },
 ];
 
 export function seedDemoYard(conn: DatabaseSync): void {

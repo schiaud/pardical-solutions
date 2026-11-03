@@ -35,7 +35,7 @@ type Status =
   | { kind: "error"; message: string };
 
 const FALLBACK_ERROR =
-  "Something went wrong sending your details. Please try again, or email hello@pardical.com.";
+  "Something went wrong sending your details. Please try again, or email david@pardical.com.";
 
 const inputClass =
   "mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-base text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none disabled:bg-slate-50";

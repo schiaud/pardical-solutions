@@ -242,10 +242,10 @@ export function BrokerDemoForm() {
                 {" "}
                 Or email us at{" "}
                 <a
-                  href="mailto:hello@pardical.com"
+                  href="mailto:david@pardical.com"
                   className="font-semibold underline underline-offset-2"
                 >
-                  hello@pardical.com
+                  david@pardical.com
                 </a>
                 .
               </>

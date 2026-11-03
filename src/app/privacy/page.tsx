@@ -154,7 +154,7 @@ export default function Privacy() {
             <li>Opt out of non-essential communications.</li>
           </ul>
           <p>
-            To exercise any of these rights, contact us at hello@pardical.com.
+            To exercise any of these rights, contact us at david@pardical.com.
           </p>
 
           <h2>7. Third-Party Integration Data Handling</h2>
@@ -210,7 +210,7 @@ export default function Privacy() {
             <br />
             Des Plaines, Illinois
             <br />
-            Email: hello@pardical.com
+            Email: david@pardical.com
           </p>
         </article>
       </main>

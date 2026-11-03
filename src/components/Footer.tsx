@@ -80,10 +80,10 @@ export function Footer({ audience = "recyclers" }: { audience?: Audience }) {
               {copy.tagline}
             </p>
             <a
-              href="mailto:hello@pardical.com"
+              href="mailto:david@pardical.com"
               className="mt-4 inline-block text-sm font-semibold text-white hover:text-accent-light"
             >
-              hello@pardical.com
+              david@pardical.com
             </a>
           </div>
 

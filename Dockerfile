@@ -18,7 +18,6 @@ WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
-    HOSTNAME=0.0.0.0 \
     DATABASE_PATH=/data/app.db
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
@@ -27,4 +26,4 @@ COPY --from=build /app/public ./public
 COPY --from=build /app/data/shipping_categories.json /app/data/shipping_history.json ./data/
 RUN mkdir -p /data
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "HOSTNAME=0.0.0.0 exec node server.js"]

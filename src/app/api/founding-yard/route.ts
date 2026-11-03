@@ -9,12 +9,12 @@ export async function POST(req: Request) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Something went wrong — please email hello@pardical.com." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Something went wrong — please email david@pardical.com." }, { status: 400 });
   }
   // Bots: pretend success so they move on.
   if (filledHoneypot(body.website)) return NextResponse.json({ ok: true });
   if (rateLimited(`lead:${await clientIp()}`, 5)) {
-    return NextResponse.json({ ok: false, error: "Too many requests — please email hello@pardical.com." }, { status: 429 });
+    return NextResponse.json({ ok: false, error: "Too many requests — please email david@pardical.com." }, { status: 429 });
   }
   const s = (k: string, n = 200) => (typeof body[k] === "string" ? (body[k] as string).trim().slice(0, n) : "");
   const name = s("name");
