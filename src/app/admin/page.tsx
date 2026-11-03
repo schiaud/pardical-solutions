@@ -16,9 +16,11 @@ export default async function OperatorHome() {
   const session = await getSession();
   if (!session) redirect("/admin/login");
   if (session.role === "owner") redirect(`/admin/${session.yard}`);
-  const yards = listYards();
-  const founding = listLeads(null, "founding_yard", 100);
-  const brokers = listLeads(null, "broker_demo", 100);
+  const yards = await Promise.all(
+    (await listYards()).map(async (y) => ({ ...y, stats: await stats(y.id), newLeads: Object.values(await newLeadCounts(y.id)).reduce((a, b) => a + b, 0) })),
+  );
+  const founding = await listLeads(null, "founding_yard", 100);
+  const brokers = await listLeads(null, "broker_demo", 100);
 
   return (
     <div className="min-h-screen bg-surface">
@@ -46,8 +48,7 @@ export default async function OperatorHome() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {yards.map((y) => {
-                  const s = stats(y.id);
-                  const leads = Object.values(newLeadCounts(y.id)).reduce((a, b) => a + b, 0);
+                  const s = y.stats;
                   return (
                     <tr key={y.id}>
                       <td className="px-4 py-2">
@@ -58,7 +59,7 @@ export default async function OperatorHome() {
                       </td>
                       <td className="px-4 py-2">{s.available.toLocaleString()}</td>
                       <td className="px-4 py-2">{s.unpriced}</td>
-                      <td className="px-4 py-2">{leads}</td>
+                      <td className="px-4 py-2">{y.newLeads}</td>
                       <td className="px-4 py-2">
                         <Link href={y.custom_domain ? `https://${y.custom_domain}` : `/y/${y.slug}`} className="text-primary hover:underline" target="_blank">
                           {y.custom_domain || `/y/${y.slug}`}

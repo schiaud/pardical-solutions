@@ -6,7 +6,7 @@ import { rateLimited } from "@/lib/guard";
 
 export async function POST(req: Request, ctx: { params: Promise<{ slug: string }> }) {
   const { slug } = await ctx.params;
-  const yard = getYardBySlug(slug);
+  const yard = await getYardBySlug(slug);
   if (!yard) return NextResponse.json({ error: "Unknown yard." }, { status: 404 });
   // Per-IP limits so a public chat box can't run up model costs.
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
@@ -21,7 +21,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   const sessionId = typeof body.sessionId === "string" ? body.sessionId.slice(0, 64) : "";
   if (!message.trim() || !sessionId) return NextResponse.json({ error: "Type a question first." }, { status: 400 });
   const host = (req.headers.get("host") || "").toLowerCase();
-  const onOwnDomain = getYardByDomain(host)?.slug === yard.slug;
+  const onOwnDomain = (await getYardByDomain(host))?.slug === yard.slug;
   const result = await answerChat(yard, sessionId, message, onOwnDomain ? "" : `/y/${yard.slug}`);
   return NextResponse.json(result);
 }

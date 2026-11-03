@@ -6,7 +6,7 @@ import SellCarForm from "./SellCarForm";
 export const metadata: Metadata = { title: "Sell your car" };
 
 export default async function SellYourCar({ params }: { params: Promise<{ slug: string }> }) {
-  const yard = getYardBySlug((await params).slug);
+  const yard = await getYardBySlug((await params).slug);
   if (!yard) notFound();
   return (
     <div className="max-w-5xl mx-auto px-4 py-10 grid gap-10 md:grid-cols-[1fr_1.2fr]">

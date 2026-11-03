@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   if (!name || !business || phone.replace(/\D/g, "").length < 10) {
     return NextResponse.json({ ok: false, error: "Please add your name, your business name and a phone number." }, { status: 400 });
   }
-  createLead({
+  await createLead({
     yardId: null,
     kind: broker ? "broker_demo" : "founding_yard",
     name,
@@ -34,6 +34,6 @@ export async function POST(req: Request) {
       ? { businessName: business, ebayStore: s("ebayStore"), ordersPerMonth: s("ordersPerMonth", 40), message: s("message", 2000) }
       : { yardName: business, city: s("city", 80), state: s("state", 40), yardSoftware: s("yardSoftware", 60), message: s("message", 2000) },
   });
-  notifyLead(`New ${broker ? "broker" : "recycler"} demo request: ${business} — ${name}, ${phone}${s("email") ? `, ${s("email")}` : ""}`);
+  await notifyLead(`New ${broker ? "broker" : "recycler"} demo request: ${business} — ${name}, ${phone}${s("email") ? `, ${s("email")}` : ""}`);
   return NextResponse.json({ ok: true });
 }

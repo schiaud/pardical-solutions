@@ -21,7 +21,7 @@ import {
   partsNeedingPrice,
   setPrice,
   setStatus,
-  setSuggestion,
+  setSuggestions,
 } from "@/lib/parts";
 import { parseCsv, rowsToParts } from "@/lib/csv";
 import { estimatePrice, marketPrice } from "@/lib/pricing";
@@ -50,9 +50,9 @@ export async function login(_prev: ActionResult, fd: FormData): Promise<ActionRe
   const slug = str(fd, "yard").toLowerCase();
   if (checkOperatorPassword(password)) {
     await startSession({ role: "operator" });
-    redirect(slug && getYardBySlug(slug) ? `/admin/${slug}` : "/admin");
+    redirect(slug && (await getYardBySlug(slug)) ? `/admin/${slug}` : "/admin");
   }
-  const yard = slug ? getYardBySlug(slug) : null;
+  const yard = slug ? await getYardBySlug(slug) : null;
   if (yard && verifyPassword(password, yard.owner_password_hash)) {
     await startSession({ role: "owner", yard: yard.slug });
     redirect(`/admin/${yard.slug}`);
@@ -71,7 +71,7 @@ export async function addYard(_prev: ActionResult, fd: FormData): Promise<Action
   await requireOperator();
   let slug: string;
   try {
-    slug = createYard(str(fd, "slug"), str(fd, "name")).slug;
+    slug = (await createYard(str(fd, "slug"), str(fd, "name"))).slug;
   } catch (err) {
     const msg = err instanceof Error && /UNIQUE/.test(err.message) ? "That web name is taken." : err instanceof Error ? err.message : "Couldn't add the yard.";
     return { ok: false, message: msg };
@@ -81,7 +81,7 @@ export async function addYard(_prev: ActionResult, fd: FormData): Promise<Action
 
 export async function setFoundingLeadStatus(fd: FormData): Promise<void> {
   await requireOperator();
-  setLeadStatus(null, Number(fd.get("id")), str(fd, "status") as Lead["status"]);
+  await setLeadStatus(null, Number(fd.get("id")), str(fd, "status") as Lead["status"]);
   revalidatePath("/admin");
 }
 
@@ -114,7 +114,7 @@ export async function importInventory(_prev: ImportSummary, fd: FormData): Promi
     };
   }
   const full = fd.get("fullFile") === "on";
-  const res = importParts(yard.id, rows, full);
+  const res = await importParts(yard.id, rows, full);
   revalidatePath(`/admin/${yard.slug}`, "layout");
   return {
     ok: true,
@@ -128,7 +128,7 @@ export async function importInventory(_prev: ImportSummary, fd: FormData): Promi
 export async function changeStatus(fd: FormData): Promise<void> {
   const { yard, readOnly } = await requireWriter(str(fd, "slug"));
   if (readOnly) return;
-  setStatus(yard.id, Number(fd.get("id")), str(fd, "status") as PartStatus);
+  await setStatus(yard.id, Number(fd.get("id")), str(fd, "status") as PartStatus);
   revalidatePath(`/admin/${yard.slug}`, "layout");
 }
 
@@ -138,11 +138,8 @@ export async function changeStatus(fd: FormData): Promise<void> {
 export async function runPriceResearch(fd: FormData): Promise<void> {
   const { yard, readOnly } = await requireWriter(str(fd, "slug"));
   if (readOnly) return;
-  for (const p of partsNeedingPrice(yard.id, 2000)) {
-    if (p.price_cents != null) continue;
-    const s = estimatePrice(p);
-    setSuggestion(p.id, s.cents, s.source, s.note);
-  }
+  const unpriced = (await partsNeedingPrice(yard.id, 2000)).filter((p) => p.price_cents == null);
+  await setSuggestions(unpriced.map((p) => ({ id: p.id, ...estimatePrice(p) })));
   revalidatePath(`/admin/${yard.slug}`, "layout");
 }
 
@@ -150,9 +147,9 @@ export async function runPriceResearch(fd: FormData): Promise<void> {
 export async function runMarketCheck(fd: FormData): Promise<void> {
   const { yard, readOnly } = await requireWriter(str(fd, "slug"));
   if (readOnly) return;
-  for (const p of partsByIds(yard.id, ids(fd).slice(0, 5))) {
+  for (const p of await partsByIds(yard.id, ids(fd).slice(0, 5))) {
     const s = await marketPrice(p);
-    if (s) setSuggestion(p.id, s.cents, s.source, s.note);
+    if (s) await setSuggestions([{ id: p.id, ...s }]);
   }
   revalidatePath(`/admin/${yard.slug}/pricing`);
 }
@@ -160,14 +157,14 @@ export async function runMarketCheck(fd: FormData): Promise<void> {
 export async function approvePrices(fd: FormData): Promise<void> {
   const { yard, readOnly } = await requireWriter(str(fd, "slug"));
   if (readOnly) return;
-  approveSuggestions(yard.id, ids(fd));
+  await approveSuggestions(yard.id, ids(fd));
   revalidatePath(`/admin/${yard.slug}`, "layout");
 }
 
 export async function savePrice(fd: FormData): Promise<void> {
   const { yard, readOnly } = await requireWriter(str(fd, "slug"));
   if (readOnly) return;
-  setPrice(yard.id, Number(fd.get("id")), dollarsToCents(str(fd, "price")));
+  await setPrice(yard.id, Number(fd.get("id")), dollarsToCents(str(fd, "price")));
   revalidatePath(`/admin/${yard.slug}`, "layout");
 }
 
@@ -176,7 +173,7 @@ export async function savePrice(fd: FormData): Promise<void> {
 export async function toggleFbPosted(fd: FormData): Promise<void> {
   const { yard, readOnly } = await requireWriter(str(fd, "slug"));
   if (readOnly) return;
-  markFbPosted(yard.id, Number(fd.get("id")), str(fd, "posted") === "1");
+  await markFbPosted(yard.id, Number(fd.get("id")), str(fd, "posted") === "1");
   revalidatePath(`/admin/${yard.slug}/channels`);
 }
 
@@ -185,7 +182,7 @@ export async function toggleFbPosted(fd: FormData): Promise<void> {
 export async function updateLead(fd: FormData): Promise<void> {
   const { yard, readOnly } = await requireWriter(str(fd, "slug"));
   if (readOnly) return;
-  setLeadStatus(yard.id, Number(fd.get("id")), str(fd, "status") as Lead["status"]);
+  await setLeadStatus(yard.id, Number(fd.get("id")), str(fd, "status") as Lead["status"]);
   revalidatePath(`/admin/${yard.slug}`, "layout");
 }
 
@@ -204,7 +201,7 @@ export async function saveSettings(_prev: ActionResult, fd: FormData): Promise<A
   if (fields.name !== undefined && !fields.name.trim()) return { ok: false, message: "The yard needs a name." };
   if (fields.brand_color && !/^#[0-9a-f]{6}$/i.test(fields.brand_color.trim())) return { ok: false, message: "Brand color must look like #1e3a5f." };
   try {
-    updateYard(yard.id, fields);
+    await updateYard(yard.id, fields);
   } catch (err) {
     return { ok: false, message: err instanceof Error && /UNIQUE/.test(err.message) ? "That domain is already connected to another yard." : "Couldn't save." };
   }
@@ -221,7 +218,7 @@ export async function setOwnerPassword(_prev: ActionResult, fd: FormData): Promi
   if (session.role === "owner" && !verifyPassword(str(fd, "current"), yard.owner_password_hash)) {
     return { ok: false, message: "Your current password didn't match." };
   }
-  setYardPasswordHash(yard.id, hashPassword(pw));
+  await setYardPasswordHash(yard.id, hashPassword(pw));
   return { ok: true, message: "Owner password saved." };
 }
 

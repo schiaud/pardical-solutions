@@ -25,23 +25,23 @@ function PhotoCredit({ credit }: { credit: string }) {
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug, id } = await params;
-  const yard = getYardBySlug(slug);
-  const part = yard && getPart(yard.id, Number(id));
+  const yard = await getYardBySlug(slug);
+  const part = yard && (await getPart(yard.id, Number(id)));
   if (!part) return {};
   return { title: `${partTitle(part)} — ${money(part.price_cents)}`, description: part.description.slice(0, 160) };
 }
 
 export default async function PartPage({ params }: { params: Params }) {
   const { slug, id } = await params;
-  const yard = getYardBySlug(slug);
+  const yard = await getYardBySlug(slug);
   if (!yard) notFound();
-  const part = getPart(yard.id, Number(id));
+  const part = await getPart(yard.id, Number(id));
   if (!part) notFound();
   const base = await linkBase(yard);
   const photos = photosOf(part);
   const ship = estimateShipping(part.part_type);
   const shipResidential = estimateShipping(part.part_type, { residential: true });
-  const related = searchParts(yard.id, { make: part.make, model: part.model, limit: 5 }).parts.filter((p) => p.id !== part.id).slice(0, 4);
+  const related = (await searchParts(yard.id, { make: part.make, model: part.model, limit: 5 })).parts.filter((p) => p.id !== part.id).slice(0, 4);
   const driveline = /engine|transmission|transaxle|transfer case|differential/i.test(part.part_type);
   const warrantyOptions = driveline
     ? ["Standard 90-day warranty (included)", "6-month warranty (+15%)", "1-year warranty (+25%)"]

@@ -23,9 +23,9 @@ Then open:
 - http://localhost:3471/admin/demo: the demo yard admin (yard `demo`, password `demo`)
 - http://localhost:3471/admin: operator view of every yard plus demo requests from both pitch pages (password `pardical` locally, `ADMIN_PASSWORD` in production)
 
-**To put it on pardical.com, follow [DEPLOY.md](DEPLOY.md).** It covers the Docker image, Render blueprint (or Railway), and the two DNS records to change.
+**Hosting, updates and the domain are in [DEPLOY.md](DEPLOY.md).** The live site runs on Vercel with a Turso database.
 
-The database is a single SQLite file at `data/app.db`, created and seeded with the demo yard on first request. Delete it to reset the demo. Try importing `data/sample-import.csv` from the Inventory page to see the column auto-mapping.
+Locally the database is a single SQLite file at `data/app.db`, created and seeded with the demo yard on first request. Delete it to reset the demo. Try importing `data/sample-import.csv` from the Inventory page to see the column auto-mapping.
 
 ## Settings (environment)
 
@@ -33,7 +33,8 @@ The database is a single SQLite file at `data/app.db`, created and seeded with t
 |---|---|---|
 | `SESSION_SECRET` | prod | 16+ chars; signs admin sessions |
 | `ADMIN_PASSWORD` | prod | operator password |
-| `DATABASE_PATH` | optional | SQLite file location (use a persistent volume when hosted) |
+| `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` | prod | the hosted database (added by Vercel's Turso connection). Without them the app uses the local SQLite file |
+| `DATABASE_PATH` | optional | local SQLite file location |
 | `APP_HOSTS` | optional | comma list of Pardical's own hostnames; any other host is looked up as a yard's custom domain |
 | `SITE_URL` | optional | canonical URL for share images, sitemap and robots (default `https://pardical.com`) |
 | `LEAD_WEBHOOK_URL` | optional | Discord or Slack incoming webhook: a message for every demo request and yard lead (not demo-yard tests) |

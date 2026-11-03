@@ -1,0 +1,7 @@
+# Deploys upload this folder. Only what the site needs goes up; never local data, secrets or internal notes.
+.env*
+!.env.example
+data/app.db*
+tasks
+*.md
+tsconfig.tsbuildinfo

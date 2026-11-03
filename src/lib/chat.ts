@@ -39,8 +39,9 @@ function bestPartType(partTypes: string[], text: string): string | undefined {
   return best?.p;
 }
 
-function understand(yardId: number, message: string) {
-  const f = facets(yardId);
+type Facets = Awaited<ReturnType<typeof facets>>;
+
+function understand(f: Facets, message: string) {
   let text = message.toLowerCase();
   for (const [re, to] of ALIASES) text = text.replace(re, to);
   const year = Number(text.match(/\b(19[5-9]\d|20[0-4]\d)\b/)?.[1]) || null;
@@ -59,14 +60,14 @@ function understand(yardId: number, message: string) {
 }
 
 /** "How much to ship it?" carries the earlier part forward; a question naming a new vehicle or part doesn't. */
-function isFollowUp(yardId: number, message: string): boolean {
-  const u = understand(yardId, message);
+function isFollowUp(f: Facets, message: string): boolean {
+  const u = understand(f, message);
   if (u.year || u.make || u.model || u.part) return false;
   return /\b(it|that|this|one|ship|shipping|price|cost|how much|fit|fits|still|available|condition|miles|warranty)\b/i.test(message);
 }
 
-function findParts(yardId: number, message: string): Part[] {
-  const u = understand(yardId, message);
+async function findParts(yardId: number, f: Facets, message: string): Promise<Part[]> {
+  const u = understand(f, message);
   const tries = [
     { year: u.year, make: u.make, model: u.model, part: u.part },
     { make: u.make, model: u.model, part: u.part },
@@ -76,7 +77,7 @@ function findParts(yardId: number, message: string): Part[] {
   if (!u.part && !u.make && !u.model) return [];
   for (const t of tries) {
     if (!t.part && !t.make) continue;
-    const { parts } = searchParts(yardId, { ...t, limit: 6 });
+    const { parts } = await searchParts(yardId, { ...t, limit: 6 });
     if (parts.length) return parts;
   }
   return [];
@@ -153,38 +154,39 @@ async function claudeReply(history: { role: "user" | "assistant"; content: strin
 export async function answerChat(yard: Yard, sessionId: string, message: string, base: string): Promise<ChatReply> {
   const msg = message.trim().slice(0, 1000);
   const conn = db();
-  conn.prepare("insert into chat_messages (yard_id, session_id, role, content) values (?,?,?,?)").run(yard.id, sessionId, "user", msg);
+  await conn.prepare("insert into chat_messages (yard_id, session_id, role, content) values (?,?,?,?)").run(yard.id, sessionId, "user", msg);
   const history = (
-    conn
+    (await conn
       .prepare("select role, content from chat_messages where yard_id = ? and session_id = ? order by id desc limit 12")
-      .all(yard.id, sessionId) as { role: "user" | "assistant"; content: string }[]
+      .all(yard.id, sessionId)) as { role: "user" | "assistant"; content: string }[]
   ).reverse();
   // Search on the whole recent conversation so "how much is shipping on it?" still finds the part.
   // A question about the yard itself (hours, address, warranty…) is answered on its own, not with the last part.
   const context = history.filter((h) => h.role === "user").map((h) => h.content).slice(-3).join(" ");
-  const direct = findParts(yard.id, msg);
+  const f = await facets(yard.id);
+  const direct = await findParts(yard.id, f, msg);
   const aboutYard = /\b(hours?|open|close[sd]?|address|where are you|located|location|directions|warranty|guarantee|return|refund)\b/i.test(msg);
-  const parts = direct.length || aboutYard || !isFollowUp(yard.id, msg) ? direct : findParts(yard.id, context);
+  const parts = direct.length || aboutYard || !isFollowUp(f, msg) ? direct : await findParts(yard.id, f, context);
   const reply = (await claudeReply(history, factsFor(yard, parts, base))) ?? plainReply(yard, parts, msg);
-  conn.prepare("insert into chat_messages (yard_id, session_id, role, content) values (?,?,?,?)").run(yard.id, sessionId, "assistant", reply);
+  await conn.prepare("insert into chat_messages (yard_id, session_id, role, content) values (?,?,?,?)").run(yard.id, sessionId, "assistant", reply);
   return {
     reply,
     parts: parts.slice(0, 3).map((p) => ({ id: p.id, title: partTitle(p), price: money(p.price_cents), url: `${base}/parts/${p.id}` })),
   };
 }
 
-export function recentChats(yardId: number, limit = 30) {
-  return db()
+export async function recentChats(yardId: number, limit = 30) {
+  return (await db()
     .prepare(
       `select session_id, min(created_at) as started, max(created_at) as last, count(*) as n,
               (select content from chat_messages c2 where c2.yard_id = c.yard_id and c2.session_id = c.session_id and role = 'user' order by id limit 1) as first_question
        from chat_messages c where yard_id = ? group by session_id order by last desc limit ?`,
     )
-    .all(yardId, limit) as { session_id: string; started: string; last: string; n: number; first_question: string }[];
+    .all(yardId, limit)) as { session_id: string; started: string; last: string; n: number; first_question: string }[];
 }
 
-export function chatTranscript(yardId: number, sessionId: string) {
-  return db()
+export async function chatTranscript(yardId: number, sessionId: string) {
+  return (await db()
     .prepare("select role, content, created_at from chat_messages where yard_id = ? and session_id = ? order by id")
-    .all(yardId, sessionId) as { role: string; content: string; created_at: string }[];
+    .all(yardId, sessionId)) as { role: string; content: string; created_at: string }[];
 }

@@ -1,4 +1,4 @@
-import { db, tx } from "./db";
+import { batchInSlices, db, type Arg, type Statement } from "./db";
 import type { Part, PartStatus } from "./types";
 
 export type PartQuery = {
@@ -45,43 +45,41 @@ function where(yardId: number, query: PartQuery): { sql: string; args: (string |
   return { sql: clauses.join(" and "), args };
 }
 
-export function searchParts(yardId: number, query: PartQuery = {}): { parts: Part[]; total: number } {
+export async function searchParts(yardId: number, query: PartQuery = {}): Promise<{ parts: Part[]; total: number }> {
   const { sql, args } = where(yardId, query);
-  const { n } = db().prepare(`select count(*) as n from parts where ${sql}`).get(...args) as { n: number };
-  const parts = db()
-    .prepare(`select * from parts where ${sql} order by updated_at desc, id desc limit ? offset ?`)
-    .all(...args, query.limit ?? 24, query.offset ?? 0) as Part[];
-  return { parts, total: n };
+  const [count, parts] = await Promise.all([
+    db().prepare(`select count(*) as n from parts where ${sql}`).get(...args),
+    db().prepare(`select * from parts where ${sql} order by updated_at desc, id desc limit ? offset ?`).all(...args, query.limit ?? 24, query.offset ?? 0),
+  ]);
+  return { parts: parts as Part[], total: (count as { n: number }).n };
 }
 
-export function getPart(yardId: number, id: number): Part | null {
-  return (db().prepare("select * from parts where yard_id = ? and id = ?").get(yardId, id) as Part | undefined) ?? null;
+export async function getPart(yardId: number, id: number): Promise<Part | null> {
+  return ((await db().prepare("select * from parts where yard_id = ? and id = ?").get(yardId, id)) as Part | undefined) ?? null;
 }
 
-export function partsByIds(yardId: number, ids: number[]): Part[] {
+export async function partsByIds(yardId: number, ids: number[]): Promise<Part[]> {
   if (!ids.length) return [];
-  return db()
+  return (await db()
     .prepare(`select * from parts where yard_id = ? and id in (${ids.map(() => "?").join(",")})`)
-    .all(yardId, ...ids) as Part[];
+    .all(yardId, ...ids)) as Part[];
 }
 
-export function facets(yardId: number): { makes: string[]; models: Record<string, string[]>; years: number[]; partTypes: string[] } {
-  const rows = db()
-    .prepare("select distinct make, model from parts where yard_id = ? and status = 'available' and make <> '' order by make, model")
-    .all(yardId) as { make: string; model: string }[];
+export async function facets(yardId: number): Promise<{ makes: string[]; models: Record<string, string[]>; years: number[]; partTypes: string[] }> {
+  const [vehicles, yearRows, typeRows] = await Promise.all([
+    db().prepare("select distinct make, model from parts where yard_id = ? and status = 'available' and make <> '' order by make, model").all(yardId),
+    db().prepare("select distinct year from parts where yard_id = ? and status = 'available' and year is not null order by year desc").all(yardId),
+    db().prepare("select part_type, count(*) as n from parts where yard_id = ? and status = 'available' and part_type <> '' group by part_type order by n desc, part_type").all(yardId),
+  ]);
   const models: Record<string, string[]> = {};
-  for (const r of rows) (models[r.make] ??= []).push(r.model);
-  const years = (
-    db().prepare("select distinct year from parts where yard_id = ? and status = 'available' and year is not null order by year desc").all(yardId) as { year: number }[]
-  ).map((r) => r.year);
-  const partTypes = (
-    db().prepare("select part_type, count(*) as n from parts where yard_id = ? and status = 'available' and part_type <> '' group by part_type order by n desc, part_type").all(yardId) as { part_type: string }[]
-  ).map((r) => r.part_type);
+  for (const r of vehicles as { make: string; model: string }[]) (models[r.make] ??= []).push(r.model);
+  const years = (yearRows as { year: number }[]).map((r) => r.year);
+  const partTypes = (typeRows as { part_type: string }[]).map((r) => r.part_type);
   return { makes: Object.keys(models), models, years, partTypes };
 }
 
-export function stats(yardId: number) {
-  const row = db()
+export async function stats(yardId: number) {
+  const row = (await db()
     .prepare(
       `select
         sum(status = 'available') as available,
@@ -92,7 +90,7 @@ export function stats(yardId: number) {
         sum(case when status = 'available' then coalesce(price_cents, 0) else 0 end) as value_cents
        from parts where yard_id = ?`,
     )
-    .get(yardId) as Record<string, number | null>;
+    .get(yardId)) as Record<string, number | null>;
   return {
     available: row.available ?? 0,
     sold: row.sold ?? 0,
@@ -122,66 +120,66 @@ export type PartInput = {
   status?: PartStatus;
 };
 
+const UPSERT_PART = `insert into parts (yard_id, stock_no, year, make, model, part_type, description, interchange, oem_number, grade, mileage, donor_vin, price_cents, core_charge_cents, location, photos, status)
+  values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+  on conflict (yard_id, stock_no) do update set
+    year=excluded.year, make=excluded.make, model=excluded.model, part_type=excluded.part_type, description=excluded.description,
+    interchange=excluded.interchange, oem_number=excluded.oem_number, grade=excluded.grade, mileage=excluded.mileage, donor_vin=excluded.donor_vin,
+    price_cents=coalesce(excluded.price_cents, price_cents), core_charge_cents=excluded.core_charge_cents, location=excluded.location,
+    photos=excluded.photos, status=excluded.status, updated_at=datetime('now')`;
+
 /**
  * Upsert an inventory export. With fullFile, anything the yard no longer exports is
- * treated as sold so it comes off the store and every feed.
+ * treated as sold so it comes off the store and every feed. Importing the same file again is
+ * safe, and marking parts sold comes last, so a failed import never takes parts off sale.
  */
-export function importParts(yardId: number, rows: PartInput[], fullFile: boolean) {
+export async function importParts(yardId: number, rows: PartInput[], fullFile: boolean) {
+  const existing = (await db().prepare("select id, stock_no, status from parts where yard_id = ?").all(yardId)) as { id: number; stock_no: string; status: string }[];
+  const known = new Set(existing.map((p) => p.stock_no));
+  const seen = new Set<string>();
   let added = 0;
   let updated = 0;
-  let removed = 0;
-  tx(() => {
-    const find = db().prepare("select id from parts where yard_id = ? and stock_no = ?");
-    const insert = db().prepare(
-      `insert into parts (yard_id, stock_no, year, make, model, part_type, description, interchange, oem_number, grade, mileage, donor_vin, price_cents, core_charge_cents, location, photos, status)
-       values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-    );
-    const update = db().prepare(
-      `update parts set year=?, make=?, model=?, part_type=?, description=?, interchange=?, oem_number=?, grade=?, mileage=?, donor_vin=?,
-         price_cents=coalesce(?, price_cents), core_charge_cents=?, location=?, photos=?, status=?, updated_at=datetime('now')
-       where id = ?`,
-    );
-    const seen: string[] = [];
-    for (const r of rows) {
-      seen.push(r.stock_no);
-      const status = r.status ?? "available";
-      const existing = find.get(yardId, r.stock_no) as { id: number } | undefined;
-      const common = [r.year, r.make, r.model, r.part_type, r.description, r.interchange, r.oem_number, r.grade, r.mileage, r.donor_vin] as const;
-      if (existing) {
-        update.run(...common, r.price_cents, r.core_charge_cents, r.location, JSON.stringify(r.photos), status, existing.id);
-        updated++;
-      } else {
-        insert.run(yardId, r.stock_no, ...common, r.price_cents, r.core_charge_cents, r.location, JSON.stringify(r.photos), status);
-        added++;
-      }
+  const writes: Statement[] = rows.map((r) => {
+    seen.add(r.stock_no);
+    if (known.has(r.stock_no)) updated++;
+    else {
+      known.add(r.stock_no);
+      added++;
     }
-    if (fullFile && seen.length) {
-      const res = db()
-        .prepare(
-          `update parts set status = 'sold', updated_at = datetime('now')
-           where yard_id = ? and status = 'available' and stock_no not in (${seen.map(() => "?").join(",")})`,
-        )
-        .run(yardId, ...seen);
-      removed = Number(res.changes);
-    }
+    return {
+      sql: UPSERT_PART,
+      args: [
+        yardId, r.stock_no, r.year, r.make, r.model, r.part_type, r.description, r.interchange, r.oem_number, r.grade, r.mileage, r.donor_vin,
+        r.price_cents, r.core_charge_cents, r.location, JSON.stringify(r.photos), r.status ?? "available",
+      ],
+    };
   });
-  return { added, updated, removed };
+  const gone = fullFile && seen.size ? existing.filter((p) => p.status === "available" && !seen.has(p.stock_no)).map((p) => p.id) : [];
+  for (let i = 0; i < gone.length; i += 500) {
+    const ids = gone.slice(i, i + 500);
+    writes.push({ sql: `update parts set status = 'sold', updated_at = datetime('now') where id in (${ids.map(() => "?").join(",")})`, args: ids });
+  }
+  await batchInSlices(writes);
+  return { added, updated, removed: gone.length };
 }
 
-export function setStatus(yardId: number, id: number, status: PartStatus): void {
-  db().prepare("update parts set status = ?, updated_at = datetime('now') where yard_id = ? and id = ?").run(status, yardId, id);
+export async function setStatus(yardId: number, id: number, status: PartStatus): Promise<void> {
+  await db().prepare("update parts set status = ?, updated_at = datetime('now') where yard_id = ? and id = ?").run(status, yardId, id);
 }
 
-export function setSuggestion(id: number, cents: number | null, source: string, note: string): void {
-  db()
-    .prepare("update parts set suggested_price_cents = ?, suggestion_source = ?, suggestion_note = ?, suggested_at = datetime('now') where id = ?")
-    .run(cents, source, note, id);
+export async function setSuggestions(items: { id: number; cents: number | null; source: string; note: string }[]): Promise<void> {
+  await batchInSlices(
+    items.map(({ id, cents, source, note }) => ({
+      sql: "update parts set suggested_price_cents = ?, suggestion_source = ?, suggestion_note = ?, suggested_at = datetime('now') where id = ?",
+      args: [cents, source, note, id] as Arg[],
+    })),
+  );
 }
 
 /** Owner approves suggestions: the suggested price becomes the live price everywhere. */
-export function approveSuggestions(yardId: number, ids: number[]): number {
+export async function approveSuggestions(yardId: number, ids: number[]): Promise<number> {
   if (!ids.length) return 0;
-  const res = db()
+  const res = await db()
     .prepare(
       `update parts set price_cents = suggested_price_cents, price_approved_at = datetime('now'), updated_at = datetime('now')
        where yard_id = ? and suggested_price_cents is not null and id in (${ids.map(() => "?").join(",")})`,
@@ -190,36 +188,36 @@ export function approveSuggestions(yardId: number, ids: number[]): number {
   return Number(res.changes);
 }
 
-export function setPrice(yardId: number, id: number, cents: number | null): void {
-  db().prepare("update parts set price_cents = ?, price_approved_at = datetime('now'), updated_at = datetime('now') where yard_id = ? and id = ?").run(cents, yardId, id);
+export async function setPrice(yardId: number, id: number, cents: number | null): Promise<void> {
+  await db().prepare("update parts set price_cents = ?, price_approved_at = datetime('now'), updated_at = datetime('now') where yard_id = ? and id = ?").run(cents, yardId, id);
 }
 
-export function markFbPosted(yardId: number, id: number, posted: boolean): void {
-  db()
+export async function markFbPosted(yardId: number, id: number, posted: boolean): Promise<void> {
+  await db()
     .prepare(`update parts set fb_posted_at = ${posted ? "datetime('now')" : "null"} where yard_id = ? and id = ?`)
     .run(yardId, id);
 }
 
-export function postedTodayCount(yardId: number): number {
-  const { n } = db()
+export async function postedTodayCount(yardId: number): Promise<number> {
+  const { n } = (await db()
     .prepare("select count(*) as n from parts where yard_id = ? and fb_posted_at >= datetime('now', 'start of day')")
-    .get(yardId) as { n: number };
+    .get(yardId)) as { n: number };
   return n;
 }
 
-export function hasCreditedPhotos(yardId: number): boolean {
-  return !!db().prepare("select 1 from parts where yard_id = ? and photo_credit <> '' limit 1").get(yardId);
+export async function hasCreditedPhotos(yardId: number): Promise<boolean> {
+  return !!(await db().prepare("select 1 from parts where yard_id = ? and photo_credit <> '' limit 1").get(yardId));
 }
 
-export function allAvailable(yardId: number): Part[] {
-  return db().prepare("select * from parts where yard_id = ? and status = 'available' order by id").all(yardId) as Part[];
+export async function allAvailable(yardId: number): Promise<Part[]> {
+  return (await db().prepare("select * from parts where yard_id = ? and status = 'available' order by id").all(yardId)) as Part[];
 }
 
-export function partsNeedingPrice(yardId: number, limit = 500): Part[] {
-  return db()
+export async function partsNeedingPrice(yardId: number, limit = 500): Promise<Part[]> {
+  return (await db()
     .prepare(
       `select * from parts where yard_id = ? and status = 'available'
        order by (suggested_price_cents is null) desc, suggested_at asc, id limit ?`,
     )
-    .all(yardId, limit) as Part[];
+    .all(yardId, limit)) as Part[];
 }

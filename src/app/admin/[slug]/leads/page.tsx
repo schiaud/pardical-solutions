@@ -58,10 +58,10 @@ export default async function Leads({ params, searchParams }: { params: Promise<
   const { yard, session } = await requireYardAdmin(slug);
   const masked = isDemoYard(yard.slug) && session.role === "owner";
   const { chat } = await searchParams;
-  const requests = listLeads(yard.id, "part_request");
-  const cars = listLeads(yard.id, "sell_car");
-  const chats = recentChats(yard.id);
-  const transcript = chat ? chatTranscript(yard.id, chat) : [];
+  const requests = await listLeads(yard.id, "part_request");
+  const cars = await listLeads(yard.id, "sell_car");
+  const chats = await recentChats(yard.id);
+  const transcript = chat ? await chatTranscript(yard.id, chat) : [];
 
   return (
     <div className="grid gap-8 lg:grid-cols-2">

@@ -14,7 +14,7 @@ export default async function Inventory({ params, searchParams }: { params: Prom
   const sp = await searchParams;
   const status = (["available", "held", "sold", "all"].includes(sp.status ?? "") ? sp.status : "available") as PartStatus | "all";
   const page = Math.max(1, Number(sp.page) || 1);
-  const { parts, total } = searchParts(yard.id, { q: sp.q, status, limit: 50, offset: (page - 1) * 50 });
+  const { parts, total } = await searchParts(yard.id, { q: sp.q, status, limit: 50, offset: (page - 1) * 50 });
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_340px]">

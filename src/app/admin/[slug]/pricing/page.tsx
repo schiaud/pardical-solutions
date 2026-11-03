@@ -6,10 +6,10 @@ import type { Part } from "@/lib/types";
 import { approvePrices, runMarketCheck, runPriceResearch, savePrice } from "../../actions";
 import { SelectAll, SubmitButton } from "../../ui";
 
-function MarketCheck({ yardId, slug }: { yardId: number; slug: string }) {
-  const priced = db()
+async function MarketCheck({ yardId, slug }: { yardId: number; slug: string }) {
+  const priced = (await db()
     .prepare("select * from parts where yard_id = ? and status = 'available' and price_cents is not null order by suggested_at is not null, price_cents desc limit 40")
-    .all(yardId) as Part[];
+    .all(yardId)) as Part[];
   return (
     <details className="rounded-xl bg-white border border-slate-200 p-5">
       <summary className="cursor-pointer font-semibold text-slate-900">Check priced parts against the market (up to 5 at a time, about a minute each)</summary>
@@ -32,14 +32,14 @@ function MarketCheck({ yardId, slug }: { yardId: number; slug: string }) {
 export default async function Pricing({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { yard } = await requireYardAdmin(slug);
-  const pending = db()
+  const pending = (await db()
     .prepare(
       `select * from parts where yard_id = ? and status = 'available' and suggested_price_cents is not null
          and (price_cents is null or suggested_price_cents <> price_cents)
        order by (price_cents is null) desc, abs(coalesce(price_cents,0) - suggested_price_cents) desc limit 300`,
     )
-    .all(yard.id) as Part[];
-  const unpriced = (db().prepare("select count(*) as n from parts where yard_id = ? and status = 'available' and price_cents is null").get(yard.id) as { n: number }).n;
+    .all(yard.id)) as Part[];
+  const unpriced = ((await db().prepare("select count(*) as n from parts where yard_id = ? and status = 'available' and price_cents is null").get(yard.id)) as { n: number }).n;
   const market = marketConfigured();
 
   return (

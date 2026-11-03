@@ -1,6 +1,5 @@
-import type { DatabaseSync } from "node:sqlite";
+import type { Statement } from "./db";
 import { estimatePrice } from "./pricing";
-import type { Part } from "./types";
 
 // A fictional yard for live demos (/y/demo, /admin/demo). Owner password: "demo".
 // scrypt hash of "demo" with salt "demo-salt" (see auth.ts hashPassword format).
@@ -120,58 +119,69 @@ const PARTS: DemoPart[] = [
   },
 ];
 
-export function seedDemoYard(conn: DatabaseSync): void {
-  conn
-    .prepare(
-      `insert into yards (slug, name, tagline, phone, email, address, city, state, zip, hours, about_text, warranty_text, returns_text, pickup_note, brand_color, owner_password_hash)
-       values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-    )
-    .run(
-      "demo",
-      "Demo Auto Recycling",
-      "Quality used OEM parts — pulled, tested and ready to ship.",
-      "(555) 010-0199",
-      "parts@example.com",
-      "1200 Salvage Rd",
-      "Anytown",
-      "IL",
-      "60018",
-      "Mon–Fri 8:00 AM – 5:00 PM\nSat 8:00 AM – 12:00 PM\nSun Closed",
-      "Family-owned full-service auto recycler since 1987. Every part is pulled by our team, cleaned, inspected and graded before it goes on the shelf. We ship nationwide and load local pickups at the counter.",
-      "Every part carries our standard 90-day parts warranty. Extended warranties (6 months or 1 year) are available at checkout on engines, transmissions and most mechanical parts.",
-      "Returns are accepted within 30 days for exchange or refund. Electrical parts must be returned unopened from the static bag. Core charges are refunded when the old part is returned in rebuildable condition.",
-      "Local pickup is free at our counter, usually ready within 2 hours. Big parts (engines, transmissions, bumpers, doors) ship by freight or are picked up.",
-      "#1e3a5f",
-      DEMO_PASSWORD_HASH,
-    );
-  const yardId = Number((conn.prepare("select id from yards where slug = 'demo'").get() as { id: number }).id);
-  const insert = conn.prepare(
-    `insert into parts (yard_id, stock_no, year, make, model, part_type, description, grade, mileage, price_cents, core_charge_cents, location, photos, photo_credit, updated_at)
-     values (?,?,?,?,?,?,?,?,?,?,?,?,?,?, datetime('now', ?))`,
-  );
+const DEMO_YARD = "(select id from yards where slug = 'demo')";
+
+/** The whole demo yard as one all-or-nothing write. */
+export function demoYardStatements(): Statement[] {
+  const statements: Statement[] = [
+    {
+      sql: `insert into yards (slug, name, tagline, phone, email, address, city, state, zip, hours, about_text, warranty_text, returns_text, pickup_note, brand_color, owner_password_hash)
+            values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      args: [
+        "demo",
+        "Demo Auto Recycling",
+        "Quality used OEM parts — pulled, tested and ready to ship.",
+        "(555) 010-0199",
+        "parts@example.com",
+        "1200 Salvage Rd",
+        "Anytown",
+        "IL",
+        "60018",
+        "Mon–Fri 8:00 AM – 5:00 PM\nSat 8:00 AM – 12:00 PM\nSun Closed",
+        "Family-owned full-service auto recycler since 1987. Every part is pulled by our team, cleaned, inspected and graded before it goes on the shelf. We ship nationwide and load local pickups at the counter.",
+        "Every part carries our standard 90-day parts warranty. Extended warranties (6 months or 1 year) are available at checkout on engines, transmissions and most mechanical parts.",
+        "Returns are accepted within 30 days for exchange or refund. Electrical parts must be returned unopened from the static bag. Core charges are refunded when the old part is returned in rebuildable condition.",
+        "Local pickup is free at our counter, usually ready within 2 hours. Big parts (engines, transmissions, bumpers, doors) ship by freight or are picked up.",
+        "#1e3a5f",
+        DEMO_PASSWORD_HASH,
+      ],
+    },
+  ];
+
   PARTS.forEach((p, i) => {
-    insert.run(
-      yardId, p.stock, p.year, p.make, p.model, p.part, p.note, p.grade, p.miles,
-      p.price == null ? null : p.price * 100, (p.core ?? 0) * 100, `Row ${1 + (i % 12)}`,
-      JSON.stringify([p.photo]), p.credit, `-${i * 37} minutes`,
-    );
+    statements.push({
+      sql: `insert into parts (yard_id, stock_no, year, make, model, part_type, description, grade, mileage, price_cents, core_charge_cents, location, photos, photo_credit, updated_at)
+            values (${DEMO_YARD},?,?,?,?,?,?,?,?,?,?,?,?,?, datetime('now', ?))`,
+      args: [
+        p.stock, p.year, p.make, p.model, p.part, p.note, p.grade, p.miles,
+        p.price == null ? null : p.price * 100, (p.core ?? 0) * 100, `Row ${1 + (i % 12)}`,
+        JSON.stringify([p.photo]), p.credit, `-${i * 37} minutes`,
+      ],
+    });
+    // Price suggestions already waiting for the unpriced parts, so the (read-only) demo admin shows the feature.
+    if (p.price == null) {
+      const sug = estimatePrice({ part_type: p.part, year: p.year, grade: p.grade, mileage: p.miles });
+      statements.push({
+        sql: `update parts set suggested_price_cents = ?, suggestion_source = ?, suggestion_note = ?, suggested_at = datetime('now')
+              where yard_id = ${DEMO_YARD} and stock_no = ?`,
+        args: [sug.cents, sug.source, sug.note, p.stock],
+      });
+    }
   });
 
-  // Price suggestions already waiting for the unpriced parts, so the (read-only) demo admin shows the feature.
-  const unpriced = conn.prepare("select * from parts where yard_id = ? and price_cents is null").all(yardId) as Part[];
-  const suggest = conn.prepare(
-    "update parts set suggested_price_cents = ?, suggestion_source = ?, suggestion_note = ?, suggested_at = datetime('now') where id = ?",
-  );
-  for (const part of unpriced) {
-    const sug = estimatePrice(part);
-    suggest.run(sug.cents, sug.source, sug.note, part.id);
-  }
-
   // Two obviously-sample leads so the demo inbox isn't empty.
-  const lead = conn.prepare("insert into leads (yard_id, kind, part_id, name, phone, email, zip, data, created_at) values (?,?,?,?,?,?,?,?, datetime('now', ?))");
-  const engine = conn.prepare("select id from parts where yard_id = ? and stock_no = 'F1004'").get(yardId) as { id: number } | undefined;
-  lead.run(yardId, "part_request", engine?.id ?? null, "Sample Buyer", "(555) 010-0142", "", "60601",
-    JSON.stringify({ part: "2004 Ford Ranger Engine (stock #F1004)", price: "$895", delivery: "pickup", warranty: "6-month warranty (+15%)" }), "-3 hours");
-  lead.run(yardId, "sell_car", null, "Sample Seller", "(555) 010-0175", "", "60007",
-    JSON.stringify({ vehicle: "2007 Honda Civic", runs: "Doesn't run", title: "Clean title", pickup: "Need it towed" }), "-1 day");
+  const lead = `insert into leads (yard_id, kind, part_id, name, phone, email, zip, data, created_at) values (${DEMO_YARD},?,`;
+  statements.push(
+    {
+      sql: `${lead}(select id from parts where yard_id = ${DEMO_YARD} and stock_no = 'F1004'),?,?,?,?,?, datetime('now', ?))`,
+      args: ["part_request", "Sample Buyer", "(555) 010-0142", "", "60601",
+        JSON.stringify({ part: "2004 Ford Ranger Engine (stock #F1004)", price: "$895", delivery: "pickup", warranty: "6-month warranty (+15%)" }), "-3 hours"],
+    },
+    {
+      sql: `${lead}null,?,?,?,?,?, datetime('now', ?))`,
+      args: ["sell_car", "Sample Seller", "(555) 010-0175", "", "60007",
+        JSON.stringify({ vehicle: "2007 Honda Civic", runs: "Doesn't run", title: "Clean title", pickup: "Need it towed" }), "-1 day"],
+    },
+  );
+  return statements;
 }

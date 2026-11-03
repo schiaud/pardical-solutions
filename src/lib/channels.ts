@@ -96,10 +96,10 @@ export function marketplaceListing(p: Part, yard: Yard, siteBase: string): Marke
 export type FbQueue = { today: Part[]; postedToday: number; dailyTarget: number; repostDue: Part[]; blocked: Part[]; remaining: number };
 
 /** Today's Marketplace posting list: priced, allowed, not yet posted. Big local-pickup parts first. */
-export function facebookQueue(yardId: number, dailyTarget = 10): FbQueue {
-  const all = db()
+export async function facebookQueue(yardId: number, dailyTarget = 10): Promise<FbQueue> {
+  const all = (await db()
     .prepare("select * from parts where yard_id = ? and status = 'available' and price_cents is not null order by price_cents desc")
-    .all(yardId) as Part[];
+    .all(yardId)) as Part[];
   const blocked = all.filter(blockedOnFacebook);
   const allowed = all.filter((p) => !blockedOnFacebook(p));
   const postedToday = allowed.filter((p) => p.fb_posted_at && p.fb_posted_at >= new Date().toISOString().slice(0, 10)).length;

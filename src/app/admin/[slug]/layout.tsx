@@ -8,8 +8,8 @@ import { logout } from "../actions";
 export default async function YardAdminLayout({ children, params }: { children: React.ReactNode; params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { yard, session } = await requireYardAdmin(slug);
-  const s = stats(yard.id);
-  const leads = Object.values(newLeadCounts(yard.id)).reduce((a, b) => a + b, 0);
+  const s = await stats(yard.id);
+  const leads = Object.values(await newLeadCounts(yard.id)).reduce((a, b) => a + b, 0);
   const nav: [string, string, number?][] = [
     ["Overview", ""],
     ["Inventory", "/inventory"],

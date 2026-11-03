@@ -10,7 +10,7 @@ import ChatWidget from "./ChatWidget";
 type Props = { children: React.ReactNode; params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const yard = getYardBySlug((await params).slug);
+  const yard = await getYardBySlug((await params).slug);
   if (!yard) return {};
   return {
     title: { default: `${yard.name} — Used OEM Auto Parts`, template: `%s | ${yard.name}` },
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function YardLayout({ children, params }: Props) {
   const { slug } = await params;
-  const yard = getYardBySlug(slug);
+  const yard = await getYardBySlug(slug);
   if (!yard) notFound();
   const base = await linkBase(yard);
   const tel = yard.phone.replace(/[^\d+]/g, "");
@@ -111,7 +111,7 @@ export default async function YardLayout({ children, params }: Props) {
         </div>
         <div className="border-t border-slate-800 py-4 text-center text-xs text-slate-500">
           © {new Date().getFullYear()} {yard.name} · Site by Pardical
-          {hasCreditedPhotos(yard.id) && <p className="mt-1">Some photos are used under Creative Commons licenses — credits are on each part&apos;s page.</p>}
+          {(await hasCreditedPhotos(yard.id)) && <p className="mt-1">Some photos are used under Creative Commons licenses — credits are on each part&apos;s page.</p>}
         </div>
       </footer>
       <ChatWidget slug={yard.slug} yardName={yard.name} />

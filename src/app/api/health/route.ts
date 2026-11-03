@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-// Host health check (Render / Railway): the app is up and the database file is readable and writable.
+// Health check: the app is up and can reach its database.
 export const dynamic = "force-dynamic";
 
-export function GET() {
+export async function GET() {
   try {
-    db().prepare("select 1").get();
+    await db().prepare("select 1").get();
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("health check failed", err);

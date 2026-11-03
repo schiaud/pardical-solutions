@@ -9,11 +9,11 @@ import { CopyButton } from "../../ui";
 export default async function Channels({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const { yard } = await requireYardAdmin(slug);
-  const all = allAvailable(yard.id);
+  const all = await allAvailable(yard.id);
   const priced = all.filter((p) => p.price_cents != null);
   const app = await origin();
   const siteBase = await absoluteYardBase(yard);
-  const fb = facebookQueue(yard.id);
+  const fb = await facebookQueue(yard.id);
   const feeds = [
     {
       name: "Google Shopping (free listings)",

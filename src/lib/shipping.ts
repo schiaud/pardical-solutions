@@ -1,5 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
+import categories from "../../data/shipping_categories.json";
+import shippingHistory from "../../data/shipping_history.json";
 
 // Size rules + real label costs come from Pardical's own shipped orders (2,817 used-part labels, 2 years),
 // the same data the live pricing tool at app.pardical.com uses. Oversize and freight use 2026 market ranges
@@ -8,12 +8,11 @@ type Rule = { category: string; size_class: SizeClass; pattern: string };
 type Stat = { n: number; median: number; p25: number; p75: number };
 export type SizeClass = "small" | "medium" | "large" | "oversize" | "freight";
 
-const dataDir = path.join(process.cwd(), "data");
-const rules = (JSON.parse(fs.readFileSync(path.join(dataDir, "shipping_categories.json"), "utf8")).rules as Rule[]).map((r) => ({
+const rules = (categories.rules as Rule[]).map((r) => ({
   ...r,
   re: new RegExp(r.pattern, "i"),
 }));
-const history = JSON.parse(fs.readFileSync(path.join(dataDir, "shipping_history.json"), "utf8")) as {
+const history = shippingHistory as {
   categories: Record<string, Stat>;
   size_classes: Record<string, Stat>;
 };

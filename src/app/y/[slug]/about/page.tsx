@@ -5,7 +5,7 @@ import { getYardBySlug, hoursLines } from "@/lib/yards";
 export const metadata: Metadata = { title: "About, warranty & returns" };
 
 export default async function About({ params }: { params: Promise<{ slug: string }> }) {
-  const yard = getYardBySlug((await params).slug);
+  const yard = await getYardBySlug((await params).slug);
   if (!yard) notFound();
   const map = encodeURIComponent([yard.address, yard.city, yard.state, yard.zip].filter(Boolean).join(", "));
   const sections: [string, string][] = [

@@ -14,16 +14,16 @@ const OWN_HOSTS = (process.env.APP_HOSTS || "localhost,127.0.0.1,pardical.com,ww
 const SHOPIFY_PATH = /^\/(cart|products|policies|pages|blogs|collections|checkouts|account)(\/|$)/;
 const SHOPIFY_ORIGIN = "https://pardical.myshopify.com";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const host = (request.headers.get("host") || "").toLowerCase().replace(/:\d+$/, "");
   const { pathname, search } = request.nextUrl;
   if ((host === "pardical.com" || host === "www.pardical.com") && SHOPIFY_PATH.test(pathname)) {
     return NextResponse.redirect(`${SHOPIFY_ORIGIN}${pathname}${search}`, 307);
   }
-  if (!host || OWN_HOSTS.includes(host) || /\.(vercel\.app|up\.railway\.app|onrender\.com)$/.test(host)) {
+  if (!host || OWN_HOSTS.includes(host) || /\.vercel\.app$/.test(host)) {
     return NextResponse.next();
   }
-  const yard = getYardByDomain(host);
+  const yard = await getYardByDomain(host);
   if (!yard) return NextResponse.next();
   const url = request.nextUrl.clone();
   url.pathname = `/y/${yard.slug}${url.pathname === "/" ? "" : url.pathname}`;

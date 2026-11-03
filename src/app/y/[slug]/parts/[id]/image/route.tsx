@@ -7,8 +7,8 @@ import { classify } from "@/lib/shipping";
 // which reject listings with no image. Real photos from the yard's system replace it automatically.
 export async function GET(_req: Request, ctx: { params: Promise<{ slug: string; id: string }> }) {
   const { slug, id } = await ctx.params;
-  const yard = getYardBySlug(slug);
-  const part = yard ? getPart(yard.id, Number(id)) : null;
+  const yard = await getYardBySlug(slug);
+  const part = yard ? await getPart(yard.id, Number(id)) : null;
   if (!yard || !part) return new Response("Not found", { status: 404 });
   const { sizeClass } = classify(part.part_type);
   const brand = yard.brand_color || "#1e3a5f";

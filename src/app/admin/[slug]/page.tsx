@@ -10,10 +10,10 @@ export default async function YardOverview({ params }: { params: Promise<{ slug:
   const { slug } = await params;
   const { yard, session } = await requireYardAdmin(slug);
   const masked = isDemoYard(yard.slug) && session.role === "owner";
-  const s = stats(yard.id);
-  const leads = newLeadCounts(yard.id);
-  const fb = facebookQueue(yard.id);
-  const latest = listLeads(yard.id, undefined, 6);
+  const s = await stats(yard.id);
+  const leads = await newLeadCounts(yard.id);
+  const fb = await facebookQueue(yard.id);
+  const latest = await listLeads(yard.id, undefined, 6);
   const a = `/admin/${yard.slug}`;
 
   const cards: [string, string, string][] = [

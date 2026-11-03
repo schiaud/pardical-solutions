@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   if (!name || !yardName || phone.replace(/\D/g, "").length < 10) {
     return NextResponse.json({ ok: false, error: "Please add your name, your yard's name and a phone number." }, { status: 400 });
   }
-  createLead({
+  await createLead({
     yardId: null,
     kind: "founding_yard",
     name,
@@ -31,6 +31,6 @@ export async function POST(req: Request) {
     email: s("email"),
     data: { yardName, city: s("city", 80), state: s("state", 40), yardSoftware: s("yardSoftware", 60), message: s("message", 2000) },
   });
-  notifyLead(`New recycler demo request: ${yardName} — ${name}, ${phone}${s("email") ? `, ${s("email")}` : ""} (${[s("city", 80), s("state", 40)].filter(Boolean).join(", ") || "location ?"}; ${s("yardSoftware", 60) || "software ?"})`);
+  await notifyLead(`New recycler demo request: ${yardName} — ${name}, ${phone}${s("email") ? `, ${s("email")}` : ""} (${[s("city", 80), s("state", 40)].filter(Boolean).join(", ") || "location ?"}; ${s("yardSoftware", 60) || "software ?"})`);
   return NextResponse.json({ ok: true });
 }

@@ -13,9 +13,9 @@ const FEEDS = {
 export async function GET(_req: Request, ctx: { params: Promise<{ slug: string; file: string }> }) {
   const { slug, file } = await ctx.params;
   const feed = FEEDS[file as keyof typeof FEEDS];
-  const yard = getYardBySlug(slug);
+  const yard = await getYardBySlug(slug);
   if (!feed || !yard) return new Response("Not found", { status: 404 });
-  const body = feed.build(yard, allAvailable(yard.id), await absoluteYardBase(yard));
+  const body = feed.build(yard, await allAvailable(yard.id), await absoluteYardBase(yard));
   return new Response(body, {
     headers: {
       "content-type": feed.type,

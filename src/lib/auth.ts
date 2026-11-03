@@ -78,7 +78,7 @@ export async function getSession(): Promise<Session | null> {
 
 /** Admin pages call this: returns the yard if the session may manage it, otherwise sends to login. */
 export async function requireYardAdmin(slug: string): Promise<{ yard: Yard; session: Session }> {
-  const yard = getYardBySlug(slug);
+  const yard = await getYardBySlug(slug);
   if (!yard) redirect("/admin");
   const session = await getSession();
   if (!session || (session.role === "owner" && session.yard !== slug)) redirect(`/admin/login?yard=${encodeURIComponent(slug)}`);

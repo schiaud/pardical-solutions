@@ -1,13 +1,23 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, type FormEvent } from "react";
 import { importInventory, type ImportSummary } from "../../actions";
 import { Notice, SubmitButton } from "../../ui";
 
+// The host accepts about 4.5 MB per request; catch bigger files here with a clear message instead of a failed upload.
+const MAX_FILE_BYTES = 4 * 1024 * 1024;
+
 export default function ImportForm({ slug }: { slug: string }) {
   const [state, action] = useActionState<ImportSummary, FormData>(importInventory, null);
+  const [tooBig, setTooBig] = useState(false);
+  const checkSize = (e: FormEvent<HTMLFormElement>) => {
+    const file = new FormData(e.currentTarget).get("file");
+    const big = file instanceof File && file.size > MAX_FILE_BYTES;
+    setTooBig(big);
+    if (big) e.preventDefault();
+  };
   return (
-    <form action={action} className="space-y-3">
+    <form action={action} onSubmit={checkSize} className="space-y-3">
       <input type="hidden" name="slug" value={slug} />
       <input
         type="file"
@@ -26,7 +36,11 @@ export default function ImportForm({ slug }: { slug: string }) {
         </span>
       </label>
       <SubmitButton pendingText="Importing…">Import inventory</SubmitButton>
-      <Notice result={state} />
+      {tooBig ? (
+        <Notice result={{ ok: false, message: "That file is over 4 MB, the most one upload can hold. Split it into smaller files and untick \"whole inventory\" while you import them." }} />
+      ) : (
+        <Notice result={state} />
+      )}
       {state?.mapping && Object.keys(state.mapping).length > 0 && (
         <div className="text-xs text-slate-500">
           Columns matched:{" "}

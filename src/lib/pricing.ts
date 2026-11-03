@@ -46,7 +46,7 @@ const BASE: [RegExp, number][] = [
 
 const GRADE: Record<string, number> = { A: 1.08, B: 1.0, C: 0.75 };
 
-function mileageFactor(part: Part): number {
+function mileageFactor(part: Pick<Part, "part_type" | "mileage">): number {
   if (part.mileage == null) return 1;
   const { sizeClass } = classify(part.part_type);
   const driveline = sizeClass === "freight" || /engine|transmission|cylinder head/i.test(part.part_type);
@@ -59,7 +59,7 @@ function mileageFactor(part: Part): number {
 
 const roundTo5 = (d: number) => Math.max(5, Math.round(d / 5) * 5);
 
-export function estimatePrice(part: Part, now = new Date()): Suggestion {
+export function estimatePrice(part: Pick<Part, "part_type" | "year" | "grade" | "mileage">, now = new Date()): Suggestion {
   const base = BASE.find(([re]) => re.test(part.part_type))?.[1] ?? 90;
   const age = part.year ? Math.max(0, now.getFullYear() - part.year) : 10;
   const ageFactor = Math.min(1.3, Math.max(0.6, 1.35 - 0.035 * age));

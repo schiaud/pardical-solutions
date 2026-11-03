@@ -9,12 +9,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // Self-contained server bundle for the Docker image (see Dockerfile).
-  output: "standalone",
   poweredByHeader: false,
   experimental: {
-    // Yard inventory exports (Powerlink / Checkmate / Pinnacle) can run several MB.
-    serverActions: { bodySizeLimit: "25mb" },
+    // Yard inventory exports (Powerlink / Checkmate / Pinnacle) can run several MB. 4.5 MB is the most Vercel accepts in one request.
+    serverActions: { bodySizeLimit: "4.5mb" },
   },
   async headers() {
     return [

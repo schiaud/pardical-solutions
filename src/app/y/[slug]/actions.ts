@@ -25,14 +25,14 @@ export async function requestPart(_prev: FormState, fd: FormData): Promise<FormS
   const blocked = await screen(fd);
   if (blocked === "drop") return { ok: true, message: "Thanks — we'll be in touch." };
   if (blocked) return blocked;
-  const yard = getYardBySlug(field(fd, "slug", 60));
+  const yard = await getYardBySlug(field(fd, "slug", 60));
   if (!yard) return { ok: false, message: "This yard isn't available." };
-  const part = getPart(yard.id, Number(fd.get("partId")));
+  const part = await getPart(yard.id, Number(fd.get("partId")));
   if (!part || part.status !== "available") return { ok: false, message: "Sorry — that part was just sold or put on hold. Call us and we'll find another." };
   const name = field(fd, "name");
   const phone = field(fd, "phone", 40);
   if (!name || !phoneOk(phone)) return { ok: false, message: "Please add your name and a phone number we can call or text." };
-  createLead({
+  await createLead({
     yardId: yard.id,
     kind: "part_request",
     partId: part.id,
@@ -49,7 +49,7 @@ export async function requestPart(_prev: FormState, fd: FormData): Promise<FormS
       notes: field(fd, "notes", 1000),
     },
   });
-  if (!isDemoYard(yard.slug)) notifyLead(`Part request at ${yard.name}: ${partTitle(part)} (#${part.stock_no}, ${money(part.price_cents)}) — ${name}, ${phone}`);
+  if (!isDemoYard(yard.slug)) await notifyLead(`Part request at ${yard.name}: ${partTitle(part)} (#${part.stock_no}, ${money(part.price_cents)}) — ${name}, ${phone}`);
   return {
     ok: true,
     message:
@@ -63,14 +63,14 @@ export async function sellCar(_prev: FormState, fd: FormData): Promise<FormState
   const blocked = await screen(fd);
   if (blocked === "drop") return { ok: true, message: "Thanks — we'll be in touch." };
   if (blocked) return blocked;
-  const yard = getYardBySlug(field(fd, "slug", 60));
+  const yard = await getYardBySlug(field(fd, "slug", 60));
   if (!yard) return { ok: false, message: "This yard isn't available." };
   const name = field(fd, "name");
   const phone = field(fd, "phone", 40);
   if (!name || !phoneOk(phone)) return { ok: false, message: "Please add your name and a phone number." };
   if (!field(fd, "vin") && !(field(fd, "year") && field(fd, "make") && field(fd, "model")))
     return { ok: false, message: "Add the VIN, or the year, make and model." };
-  createLead({
+  await createLead({
     yardId: yard.id,
     kind: "sell_car",
     name,
@@ -86,7 +86,7 @@ export async function sellCar(_prev: FormState, fd: FormData): Promise<FormState
       pickup: field(fd, "pickup", 20),
     },
   });
-  if (!isDemoYard(yard.slug)) notifyLead(`Car offered to ${yard.name}: ${[field(fd, "year", 4), field(fd, "make", 40), field(fd, "model", 60)].filter(Boolean).join(" ") || field(fd, "vin", 20)} — ${name}, ${phone}`);
+  if (!isDemoYard(yard.slug)) await notifyLead(`Car offered to ${yard.name}: ${[field(fd, "year", 4), field(fd, "make", 40), field(fd, "model", 60)].filter(Boolean).join(" ") || field(fd, "vin", 20)} — ${name}, ${phone}`);
   return {
     ok: true,
     message: `Thanks! We'll call you with an offer — usually the same business day. Questions? Call ${yard.phone}.` + (isDemoYard(yard.slug) ? DEMO_NOTE : ""),

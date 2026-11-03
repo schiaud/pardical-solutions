@@ -15,7 +15,7 @@ const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)?
 
 export default async function PartsPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: SP }) {
   const { slug } = await params;
-  const yard = getYardBySlug(slug);
+  const yard = await getYardBySlug(slug);
   if (!yard) notFound();
   const base = await linkBase(yard);
   const sp = await searchParams;
@@ -37,8 +37,8 @@ export default async function PartsPage({ params, searchParams }: { params: Prom
   }
 
   const perPage = 24;
-  const { parts, total } = searchParts(yard.id, { ...query, limit: perPage, offset: (page - 1) * perPage });
-  const f = facets(yard.id);
+  const { parts, total } = await searchParts(yard.id, { ...query, limit: perPage, offset: (page - 1) * perPage });
+  const f = await facets(yard.id);
   const pages = Math.ceil(total / perPage);
   const qs = (p: number) => {
     const u = new URLSearchParams();

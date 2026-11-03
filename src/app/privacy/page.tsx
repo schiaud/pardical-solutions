@@ -106,7 +106,7 @@ export default function Privacy() {
           <ul>
             <li>
               <strong>Service providers:</strong> Third-party companies that help us operate the Service
-              (e.g., cloud hosting providers such as Railway and Google Cloud, AI providers such as
+              (e.g., cloud hosting providers such as Vercel, Turso and Google Cloud, AI providers such as
               Anthropic that generate chat replies, and payment processing via Stripe). These providers are
               contractually obligated to protect your data.
             </li>

@@ -8,12 +8,12 @@ import PartCard from "./PartCard";
 
 export default async function YardHome({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const yard = getYardBySlug(slug);
+  const yard = await getYardBySlug(slug);
   if (!yard) notFound();
   const base = await linkBase(yard);
-  const f = facets(yard.id);
-  const recent = searchParts(yard.id, { limit: 8 }).parts;
-  const s = stats(yard.id);
+  const f = await facets(yard.id);
+  const recent = (await searchParts(yard.id, { limit: 8 })).parts;
+  const s = await stats(yard.id);
 
   return (
     <>
