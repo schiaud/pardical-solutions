@@ -29,17 +29,18 @@ On Vercel under Project → Settings → Environment Variables. `.env.example` e
 | `ANTHROPIC_API_KEY` (optional) | Claude-written chat replies. Without it, chat answers from inventory with plain rules. |
 
 ## The domain
-`pardical.com` DNS is managed in **Squarespace Domains** (nameservers `ns-cloud-b*.googledomains.com`). Only two records point at this site:
+`pardical.com` DNS is managed in **Squarespace Domains** (nameservers `ns-cloud-b*.googledomains.com`). These records matter for the site and checkout:
 
-| Host | Type | Value |
-|---|---|---|
-| `@` | A | `@@APEX@@` |
-| `www` | CNAME | `@@WWW@@` |
+| Host | Type | Value | What it does |
+|---|---|---|---|
+| `@` | A | `216.150.1.1` | `pardical.com`, this site |
+| `www` | CNAME | `c359a8f602994daf.vercel-dns-016.com` | `www.pardical.com`, a permanent redirect to `pardical.com` |
+| `shop` | CNAME | `shops.myshopify.com` | `shop.pardical.com`, the Shopify store and checkout |
 
 Everything else on the domain is separate and must stay as it is: Google Workspace email (MX, SPF, `google._domainkey`), `app` (pricing tool, Vercel), `solutions` (this same site), `api`, `employee`, and the verification records.
 
 ### Shopify
-The pricing tool at `app.pardical.com` still checks out through the Shopify store, using `pardical.com` links (`/cart`, `/products`, `/policies`, `/pages`…). `src/proxy.ts` forwards those paths to `pardical.myshopify.com`. This only works while `pardical.com` is **not** a domain on the Shopify store (Settings → Domains), otherwise Shopify sends them straight back and they loop.
+Facebook Marketplace buyers and the pricing tool at `app.pardical.com` pay through the Shopify store, whose main address is now `shop.pardical.com`. Links already sent out still point at `pardical.com` (`/cart`, `/products`, `/policies`, `/pages`…), and `src/proxy.ts` forwards those paths to `shop.pardical.com`. `pardical.com` must **not** be a domain on the Shopify store (Settings → Domains), otherwise Shopify and this site would each claim it.
 
 ## What to check after a deploy
 - `/` the recycler pitch, `/brokers` the broker pitch.

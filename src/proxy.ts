@@ -9,10 +9,10 @@ const OWN_HOSTS = (process.env.APP_HOSTS || "localhost,127.0.0.1,pardical.com,ww
   .map((h) => h.trim().toLowerCase())
   .filter(Boolean);
 
-// The pricing tool at app.pardical.com still checks out through the Shopify store, and old links point at
-// pardical.com. Send those paths on to the store's own address, query string intact.
+// Facebook buyers and the pricing tool at app.pardical.com check out through the Shopify store, which now lives
+// at shop.pardical.com. Links already sent out still point at pardical.com, so send those paths on, query string intact.
 const SHOPIFY_PATH = /^\/(cart|products|policies|pages|blogs|collections|checkouts|account)(\/|$)/;
-const SHOPIFY_ORIGIN = "https://pardical.myshopify.com";
+const SHOPIFY_ORIGIN = "https://shop.pardical.com";
 
 export async function proxy(request: NextRequest) {
   const host = (request.headers.get("host") || "").toLowerCase().replace(/:\d+$/, "");
